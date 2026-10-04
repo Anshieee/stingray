@@ -100,7 +100,9 @@ Run it after the frontend build with both local ports free.
 ## Planned interfaces — not implemented or finalized
 
 - Source ingestion/upload, including modality extraction.
-- Canonical content and evidence-reference contracts.
+- AI-driven canonical extraction and `/api/v1/analyze` (Phase 2B future work).
+  Internal deterministic canonical/evidence domain models exist in Phase 2A but
+  expose no HTTP interface; the application route set is unchanged.
 - Generation controls beyond the nullable walking-skeleton request and future transformation responses.
 - Grounding/validation results and rendered exports.
 - A frontend API client derived from the generated contract.

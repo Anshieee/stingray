@@ -1,9 +1,9 @@
-# Architecture — living Phase 1 skeleton
+# Architecture — living Phase 2A foundation
 
 This concise source is the basis for the eventual **maximum-2-page** architecture
 deliverable. Final paginated layout is future work, not a completed submission.
 
-## Implemented walking skeleton
+## Implemented walking skeleton (unchanged)
 
 ```text
 Browser
@@ -21,9 +21,31 @@ source limit. The service normalizes whitespace and returns a bounded excerpt; i
 does not summarize, call a model or fabricate citations/evidence. Capabilities
 describe seven defined outputs, all `implemented: false`; only the executive-summary
 deterministic stub advertises `stub_available: true` and `stub_mode: DETERMINISTIC_STUB`.
-There is no storage, canonical extraction or AI provider.
+There is no storage, AI provider or model call. A deterministic canonical layer
+exists internally but is not exposed over HTTP.
 
-## Planned content path — canonical components below remain unimplemented
+## Implemented Phase 2A deterministic layer — no AI analysis
+
+```text
+Raw text
+  -> normalize_source_text() (CRLF/CR to LF, all else preserved)
+  -> PreparedSource (normalized text, SourceMetadata, SourceSegment[])
+  -> CanonicalContent shell (metadata + segment catalog, empty semantics)
+  -> validate_canonical_against_source() (loud structural checks)
+```
+
+Normalization is line-ending only. Segmentation is paragraph-oriented: one or more
+blank/whitespace-only lines separate segments; offsets are exact character indices
+with `normalized[start:end] == segment.text`; order is zero-based source-relative;
+IDs are deterministic hashes (no UUID/timestamp) unique within one source. Identity
+is UTF-8 SHA-256 plus character/segment counts. `EvidenceReference` holds only a
+segment ID. `ProvenancedClaim` reuses `ProvenanceStatus` with OBSERVED requiring
+evidence and no numeric confidence. `CanonicalContent` carries metadata, the segment
+catalog and semantic slots (title/summary plus facts, entities, dates, statistics,
+key messages, risks, recommendations, unknowns) that may legitimately be empty.
+An empty-shell helper copies source identity without inventing semantics.
+
+## Planned content path — AI analysis below remains unimplemented
 
 ```text
 Source
@@ -58,8 +80,9 @@ reinterpret raw input independently. The future provider remains `<AI_PROVIDER_L
   Future observed claims require evidence; missing data never becomes fabricated facts.
 - The live FastAPI OpenAPI schema is authoritative; frontend contracts will derive from it.
 - Phase 1 models output identifiers, status vocabulary, capability availability and
-  typed walking-skeleton request/response contracts. CanonicalContent and
-  EvidenceReference schemas belong to later work.
+  typed walking-skeleton request/response contracts. Phase 2A adds internal
+  `CanonicalContent`, `EvidenceReference` and structural validation; AI-driven
+  canonical extraction and semantic grounding belong to later work.
 
 ## Verification and deferred decisions
 

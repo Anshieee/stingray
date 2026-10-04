@@ -46,6 +46,50 @@
   evidence and explicit missingness. Confidence cannot substitute for evidence.
   No evidence-reference or complete canonical schema is implemented yet.
 
+## ADR-006 — Deterministic line-ending normalization
+
+- **Status:** accepted for Phase 2A.
+- **Context:** segment offsets, character counts and digests need one stable basis.
+- **Choice:** map CRLF to LF, then standalone CR to LF; preserve every other
+  character exactly (no case/whitespace/Unicode/punctuation changes).
+- **Alternatives:** whitespace-collapsing normalization; Unicode normalization.
+- **Consequences:** offsets and SHA-256 are reproducible; semantic content is never
+  silently mutated. Pinned by a literal 37-character oracle and fixed SHA-256.
+
+## ADR-007 — Paragraph-based source segmentation
+
+- **Status:** accepted for Phase 2A.
+- **Context:** evidence needs stable, explainable locations without NLP models.
+- **Choice:** group consecutive non-blank lines into paragraph segments separated by
+  one or more blank/whitespace-only lines; exact `start/end` offsets with
+  `normalized[start:end] == text`; zero-based source-relative order; deterministic
+  hash IDs unique within one source.
+- **Alternatives:** semantic chunking; token-based or embedding segmentation.
+- **Consequences:** boring, testable segments with literal oracle offsets; no
+  cross-edit stability is promised in this phase.
+
+## ADR-008 — Evidence references by stable segment ID
+
+- **Status:** accepted for Phase 2A.
+- **Context:** observed claims need resolvable, minimal pointers.
+- **Choice:** `EvidenceReference` holds only `segment_id`; cross-object validation
+  proves the ID exists, offsets are valid and text matches the source slice.
+- **Alternatives:** page numbers, timestamps, bounding boxes, confidence scores.
+- **Consequences:** smallest sufficient contract for plain text; OBSERVED requires
+  evidence while INFERRED/UNKNOWN/NOT_APPLICABLE may omit it; no numeric confidence.
+
+## ADR-009 — Structural validation is not semantic entailment
+
+- **Status:** accepted limitation for Phase 2A.
+- **Context:** a syntactically valid reference can still misstate its passage.
+- **Choice:** `validate_canonical_against_source()` enforces digests, counts,
+  catalog correspondence, uniqueness, ordering, offsets, slice equality and
+  evidence resolvability loudly without silent repair; semantic entailment is
+  explicitly out of scope.
+- **Alternatives:** claiming grounding/fact verification from structural checks.
+- **Consequences:** honest boundaries for future AI/grounding work; no false
+  verification claims.
+
 ## ADR-005 — Source content is data, never privileged instructions
 
 - **Status:** accepted.

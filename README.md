@@ -3,10 +3,11 @@
 Stringray is a planned AI-powered multimodal platform that understands a common
 information source once and transforms it into configurable communication artefacts.
 
-**v0.2.0 — Phase 1 / walking skeleton. AI transformation is NOT implemented.**
-This iteration connects a real plain-text browser request to a live FastAPI route,
-a deterministic transformation stub and a browser result. The local tag awaits
-human verification; see
+**v0.3.0 candidate — Phase 2A deterministic canonical scaffolding. AI transformation is NOT implemented.**
+This iteration adds an internal deterministic source/evidence layer (normalization,
+paragraph segments, SHA-256, evidence references, canonical shell and structural
+validation) with no new API route and no model calls. The browser-to-API Phase-1
+slice is unchanged; see
 [PROGRESS.md](PROGRESS.md).
 
 ## Architecture and layout
@@ -43,8 +44,11 @@ CHANGELOG.md    Iteration history
 
 The frontend is a minimal walking-skeleton workspace. It sends only plain text and
 requests the `executive_summary` output. The backend returns one clearly labeled
-deterministic stub artifact. No AI model, canonical analysis, evidence or grounding
-is involved. The seven-output vocabulary remains the eventual product specification.
+deterministic stub artifact. No AI model call, provider adapter or `/analyze`
+endpoint exists. A deterministic canonical/evidence foundation (`models/canonical.py`,
+`services/source_preparation.py`, `services/canonical_validation.py`) prepares and
+structurally validates shared source representations for future generators; it does
+not perform AI analysis. The seven-output vocabulary remains the eventual product specification.
 Pre-existing root npm manifests in the operator's sandbox belong to Omnirush,
 are preserved locally, and are ignored. Run project npm commands in `frontend/`.
 
@@ -188,9 +192,10 @@ Challenge deliverables: source code, setup README, architecture document **maxim
 The latter deliverables have planning skeletons in [docs/deliverables.md](docs/deliverables.md);
 the video and presentation do not yet exist.
 
-There are no uploads, document/media/URL ingestion, canonical extraction, live AI calls,
+There are no uploads, document/media/URL ingestion, live AI calls, provider adapters,
 renderers/exporters, authentication, persistence, queues or external publishing.
 Only the deterministic `executive_summary` integration stub is available; all seven
-output types remain definitions with `implemented: false`. Provenance semantics are
-documented; evidence extraction and claim-level validation are future work. The
+output types remain definitions with `implemented: false`. Provenance semantics and
+structural evidence validation exist; semantic entailment checking and AI-driven
+canonical extraction are future work. The
 eventual runtime provider remains `<AI_PROVIDER_LATER>`.

@@ -1,13 +1,12 @@
 # Progress
 
-- **Current iteration:** v0.2.2 — Phase 1 verified closeout.
-- **Current verified tag:** v0.2.1.
-- **Last human-verified fallback tag:** v0.2.1.
-- **Current candidate:** v0.2.2 (documentation/environment closeout only; no application change).
-- **v0.2.1 automated/local verification:** passed independently by the human.
-- **v0.2.1 human browser/visual verification:** complete.
-- **Local release status:** v0.2.2 created locally; Phase 1 complete.
-- **Next planned phase:** Phase 2 — Canonical Content Model and real structured source understanding. Phase 2 has not started; no v0.3.0 candidate exists yet.
+- **Current iteration:** v0.3.0 — Phase 2A deterministic canonical scaffolding.
+- **Current verified tag:** v0.2.2.
+- **Last human-verified fallback tag:** v0.2.2.
+- **Current candidate:** v0.3.0 (backend canonical scaffolding only; no AI, no new route).
+- **Phase 2A status:** implemented and locally verified; Phase 2B provider work not started.
+- **Local release status:** v0.3.0 created locally; awaiting human verification.
+- **Next planned phase:** Phase 2B — provider-backed structured source analysis.
 
 ## Completed items
 
@@ -18,6 +17,9 @@
 - Minimal Next.js/React/Tailwind workspace with strict TypeScript, live API transport,
   loading/error/result states and component tests.
 - Backend behavioural tests, ruff, frontend lint/typecheck/test/build scripts.
+- Deterministic canonical scaffolding: line-ending normalization, paragraph
+  segments with exact offsets, stable IDs, SHA-256 identity, evidence references,
+  provenance-aware claims, empty canonical shell and structural cross-validation.
 - Setup documentation, architecture/provenance/API contracts and ADRs.
 - CI workflow and repeatable live quick E2E/OpenAPI and index-hygiene scripts.
 
@@ -55,8 +57,20 @@ no fake confidence/citations/analytics were shown, and layout was usable.
 Browser-extension DOM injection (Dark Reader, Video Speed Controller) caused false
 hydration warnings during verification; they were not Stringray defects.
 
-The current human-verified fallback tag is v0.2.1. Phase 1 is complete and Phase 2
-has not started. A local annotated tag does not establish remote publication.
+The previous human-verified fallback tag is v0.2.2. Phase 1 remains complete; this
+candidate adds only the deterministic Phase 2A foundation. A local annotated tag
+does not establish remote publication.
+
+## Phase 2A verification (v0.3.0 candidate)
+
+Deterministic canonical checks run with `backend/.venv/bin/python -m pytest
+backend/tests -q` (51 passed: 21 Phase-1 regression + 30 canonical). Coverage
+includes the literal normalization oracle (37 chars, fixed SHA-256), exact
+paragraph offsets, stable/unique IDs, OBSERVED-evidence invariants, no-confidence
+contract, and loud cross-validation failures. No AI provider, model call, new
+route, frontend change or new dependency was introduced. Structural validation
+proves cited segments exist with valid locations; it does not prove semantic
+entailment.
 
 ## Current limitations
 
@@ -65,12 +79,13 @@ has not started. A local annotated tag does not establish remote publication.
   path and is a deterministic integration stub, not a genuine summary.
 - The six generation controls are modeled as nullable request data but do not affect
   the stub. Source text is bounded at 10,000 characters and over-limit input is rejected.
-- No document/media/URL ingestion, uploads, canonical extraction, model calls,
-  evidence/grounding, rendering/exporting, authentication, database, workers or publishing.
+- No document/media/URL ingestion, uploads, model calls, semantic grounding,
+  rendering/exporting, authentication, database, workers or publishing.
 - All seven transformations remain contract definitions with `implemented: false`;
   only executive_summary has `stub_available: true`.
-- Provenance states and rules exist; EvidenceReference, claim validation and the
-  full canonical content model are deferred.
+- Deterministic canonical preparation and structural evidence validation exist
+  internally; AI-driven canonical extraction and semantic entailment checking are
+  deferred to later phases.
 - The frontend does not yet expose the future generation controls.
 - Deliverable outlines exist; no demo video or technical slide deck has been produced.
 
@@ -85,4 +100,5 @@ has not started. A local annotated tag does not establish remote publication.
 
 ## Next scope
 
-Phase 2 — Canonical Content Model and real structured source understanding.
+Phase 2B — provider-backed structured source analysis (provider abstraction,
+OpenAI adapter, `/api/v1/analyze`, fake-provider tests) on this foundation.

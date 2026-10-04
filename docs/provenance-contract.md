@@ -1,17 +1,37 @@
 # Provenance and honesty contract
 
 These semantics bind future ingestion, canonical modeling, transformation,
-validation and rendering. Phase 1 preserves the enum and exposes its vocabulary,
-but the deterministic integration stub does **not** extract facts, assign claim
-provenance, or implement evidence validation.
+validation and rendering. Phase 2A implements the deterministic evidence schema
+and structural validation below; the integration stub still does not extract
+facts, and no AI analysis exists yet.
+
+## Evidence references (implemented in Phase 2A)
+
+`EvidenceReference` holds exactly one field: `segment_id`. A reference is valid
+only when that ID exists in the corresponding `PreparedSource` segment catalog
+with exact offsets and matching source slice text. `validate_canonical_against_source()`
+rejects unknown IDs, duplicate segment IDs, digest/count mismatches, catalog
+mismatches, invalid offsets and OBSERVED claims without evidence — loudly, without
+silent repair (no evidence deletion, ID replacement, OBSERVED downgrade or digest
+patching).
+
+## Structural versus semantic grounding (limitation)
+
+Structural validation proves a cited segment exists, its location is valid, its
+text matches the source, and an OBSERVED claim carries at least one reference. It
+does NOT prove the cited text semantically entails the claim. Semantic grounding
+and fact verification belong to a later validation/grounding phase and must not be
+claimed yet.
 
 ## OBSERVED
 
-Explicitly supported by the user's supplied source. Every future observed factual
-claim must carry an **EvidenceReference** that allows a reviewer to find the support
-in the source. The reference schema will be designed with the canonical model later;
+Explicitly supported by the user's supplied source. Every observed factual
+claim must carry at least one **EvidenceReference** holding an existing source
+segment ID (implemented in Phase 2A). Structural validation checks presence and
+resolvability, not semantic entailment.
 source identity and a usable location (such as a passage, page or time range) will
-be needed. No EvidenceReference model is implemented in this iteration.
+be needed. No page/timestamp/bounding-box fields are added until an input format
+needs them.
 
 OBSERVED means source-supported, not independently proven true. Contradictory or
 unreliable sources must not be silently merged into certainty. Faithful paraphrasing
@@ -61,8 +81,9 @@ LinkedIn artefact. It is not a shortcut for unreadable or incomplete input.
    to make an output look more polished violates the contract.
 4. Keep compound statements with mixed provenance distinguishable. An inferred
    conclusion cannot inherit OBSERVED merely because another clause cites evidence.
-5. Validation must eventually detect unsupported observed claims. Phase 1 makes no
-   claim that such runtime validation exists yet.
+5. Structural validation detects unsupported observed claims (missing or
+   unresolvable evidence). Phase 2A validation is structural only; it makes no
+   claim that semantic entailment has been verified yet.
 6. Simulated/stubbed development responses must be explicitly identified in API/UI
    output as **stub** or **simulation**, never as real model results. Phase 1 uses
    `DETERMINISTIC_STUB` and `DETERMINISTIC STUB / NO AI`; this is integration

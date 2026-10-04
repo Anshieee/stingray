@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.0 — Phase 2A deterministic canonical scaffolding
+
+Local candidate; no AI provider, model calls, new API route or frontend change.
+No remote release or publication.
+
+- Added deterministic source preparation: CRLF/CR-to-LF normalization, paragraph
+  segments with exact offsets, stable IDs, UTF-8 SHA-256 and typed metadata.
+- Added typed canonical domain: evidence references, provenance-aware claims with
+  OBSERVED-requires-evidence, empty canonical shell and loud structural validation.
+- Structural validation proves cited segments exist with valid locations; semantic
+  entailment remains future work.
+
 ## v0.2.2 — Phase 1 verified closeout
 
 Human-verified fallback is now v0.2.1; Phase 1 browser/visual verification is

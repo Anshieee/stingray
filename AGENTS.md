@@ -5,16 +5,20 @@
 Stringray will transform a common multimodal information source into one or more
 communication artefacts controlled by audience, tone, language, detail, objective
 and style. It must analyze each source once, preserving evidence and provenance
-across every output. The current iteration is **v0.2.0, Phase 1 / walking skeleton**:
-a plain-text browser request, live FastAPI route, deterministic engine stub and
-browser result. AI transformation is not implemented. Read PROGRESS.md before
+across every output. The current iteration is **v0.3.0 candidate, Phase 2A /
+deterministic canonical scaffolding**: normalized source preparation, stable
+paragraph segments, SHA-256 identity, evidence references and structural canonical
+validation, with no AI provider and no new API route. Read PROGRESS.md before
 starting work and obtain an explicit phase scope before adding product functionality.
 
 ## Repository map
 
 - `frontend/`: Next.js App Router, React, strict TypeScript, Tailwind, npm, Vitest and local API transport.
-- `backend/app/`: FastAPI factory, API routes, Pydantic contracts and deterministic service.
-- `backend/tests/`: public HTTP behaviour tests; `backend/pyproject.toml`: tooling/dependencies.
+- `backend/app/`: FastAPI factory, API routes, Pydantic contracts, deterministic service,
+  plus internal canonical domain (`models/canonical.py`) and deterministic
+  preparation/validation services with no HTTP exposure.
+- `backend/tests/`: public HTTP behaviour tests plus focused canonical tests
+  (`test_source_preparation.py`, `test_canonical_models.py`); `backend/pyproject.toml`: tooling/dependencies.
 - `backend/requirements-dev.lock`: generated dependency constraints for installs/CI.
 - `docs/`: brief, living architecture, API/provenance contracts, deliverable outlines.
 - `scripts/`: live HTTP/quick-E2E/OpenAPI verification and staged-content hygiene.
@@ -83,11 +87,17 @@ virtual environments may contain absolute paths.
    workers, queues, provider SDKs or orchestration infrastructure in Phase 1.
 6. Keep tooling small, tests behavioural, and dependencies understandable. No large
    state manager, LangChain/LangGraph, Redis, database or deployment stack.
+7. Phase 2A canonical layer stays deterministic and internal: CRLF/CR normalize to LF,
+   paragraph segmentation with exact character offsets, stable segment IDs, UTF-8
+   SHA-256 identity, `EvidenceReference` by segment ID, `ProvenanceStatus` reuse with
+   OBSERVED-requires-evidence, and explicit `validate_canonical_against_source()`.
+   Structural validation never silently repairs data and never claims semantic entailment.
 
 ## Provenance and honesty
 
-- `OBSERVED`: explicitly supported by supplied source; every future observed claim
-  must carry an `EvidenceReference`. No such schema/extraction exists in Phase 1.
+- `OBSERVED`: explicitly supported by supplied source; every observed claim
+  must carry at least one `EvidenceReference` to an existing source segment ID.
+  Structural validation enforces presence/resolvability, not semantic entailment.
 - `INFERRED`: system interpretation, recommendation or creative material; never
   silently present it as a source fact.
 - `UNKNOWN`: evidence missing or indeterminate.
