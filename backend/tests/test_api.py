@@ -75,13 +75,16 @@ def test_generated_openapi_documents_current_contract(client):
     assert response.status_code == 200
     schema = response.json()
     assert set(schema["paths"]) == {
-        "/health", "/api/v1/capabilities", "/api/v1/transform"
+        "/health", "/api/v1/capabilities", "/api/v1/transform", "/api/v1/analyze"
     }
     assert "200" in schema["paths"]["/health"]["get"]["responses"]
     assert "200" in schema["paths"]["/api/v1/capabilities"]["get"]["responses"]
     assert "200" in schema["paths"]["/api/v1/transform"]["post"]["responses"]
+    assert "200" in schema["paths"]["/api/v1/analyze"]["post"]["responses"]
     assert "TransformRequest" in schema["components"]["schemas"]
     assert "TransformResponse" in schema["components"]["schemas"]
+    assert "AnalyzeRequest" in schema["components"]["schemas"]
+    assert "AnalyzeResponse" in schema["components"]["schemas"]
     assert set(schema["components"]["schemas"]["ProvenanceStatus"]["enum"]) == {
         "OBSERVED", "INFERRED", "UNKNOWN", "NOT_APPLICABLE"
     }

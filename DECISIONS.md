@@ -102,3 +102,45 @@
 - **Consequences:** future ingestion/prompt/tool boundaries must preserve this separation
   and be tested with adversarial source text. Phase 0 has no source-processing path,
   so it documents the rule rather than claiming runtime prompt-injection protection.
+
+## ADR-010 — Provider returns semantic analysis only
+
+- **Status:** accepted for Phase 2B.
+- **Context:** letting a model generate digests, offsets or segment IDs risks
+  unresolvable evidence and false provenance.
+- **Choice:** `CanonicalSemanticAnalysis` carries semantic claims plus references;
+  `analyze_source()` combines it with server-owned metadata/segments.
+- **Alternatives:** provider-generated full canonical content trusted after parse.
+- **Consequences:** source identity stays deterministic; provider output with
+  unknown IDs or missing OBSERVED evidence fails loudly without silent repair.
+
+## ADR-011 — Provider abstraction precedes transformation generation
+
+- **Status:** accepted for Phase 2B.
+- **Context:** output generators must share one analysis rather than re-prompting.
+- **Choice:** `AnalysisProvider` protocol with `analyze(PreparedSource)`; route and
+  service depend on the protocol, OpenAI specifics stay in the adapter.
+- **Alternatives:** OpenAI calls embedded in the route; per-output raw-source prompts.
+- **Consequences:** fake providers inject cleanly; no SDK leakage into domain code.
+
+## ADR-012 — Provider-native structured output over ad-hoc JSON parsing
+
+- **Status:** accepted for Phase 2B.
+- **Context:** scraped JSON (braces search, fence stripping, eval, repair loops)
+  produces brittle, silently malleable provenance.
+- **Choice:** `client.responses.parse(..., text_format=CanonicalSemanticAnalysis)`
+  with Pydantic validation; refusals/None parsed output are controlled failures.
+- **Alternatives:** Markdown-JSON prompts with `json.loads(output_text)` recovery.
+- **Consequences:** schema violations fail honestly; timeout (30s) and
+  max_retries (1) stay explicit and finite.
+
+## ADR-013 — Automated tests never spend real model tokens
+
+- **Status:** accepted for Phase 2B.
+- **Context:** CI and live verification must be reproducible without credentials.
+- **Choice:** injected fake providers and mock SDK clients in tests; the live
+  verifier scrubs provider env vars from its child backend and only proves the
+  unconfigured 503 path. No `AI_PROVIDER=fake` production fallback exists.
+- **Alternatives:** live-model integration tests; fake provider mode in production.
+- **Consequences:** zero external AI calls in automation; real-provider smoke is a
+  documented human-only action.

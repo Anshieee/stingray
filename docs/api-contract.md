@@ -14,6 +14,7 @@ contents in documentation. The application factory is `app.main:create_app`.
 | `GET /health` | Process liveness; HTTP 200 and `{"status":"ok"}` |
 | `GET /api/v1/capabilities` | Defined transformation identifiers, explicit implementation status, provenance vocabulary |
 | `POST /api/v1/transform` | Plain-text `executive_summary` deterministic integration stub |
+| `POST /api/v1/analyze` | Provider-backed structured source analysis (plain text; 503 when unconfigured) |
 | `GET /openapi.json` | Framework-generated schema |
 | `GET /docs`, `GET /redoc` | Framework interactive/reference documentation |
 
@@ -76,6 +77,19 @@ this local integration slice. Empty/whitespace text, unsupported source types, z
 outputs, unsupported Phase 1 outputs and over-limit input receive typed HTTP 422
 responses; input is never silently truncated.
 
+## Analyze request, response and errors
+
+`POST /api/v1/analyze` accepts only `{"source": {"type": "text", "text": "..."}}`
+with the same 1..10,000 character non-whitespace policy. Success returns
+`status: ok`, `mode: AI_STRUCTURED_ANALYSIS`, `provider`, `requested_model`,
+`provider_reported_model` (null when the provider reports none, never a copy of
+the requested value), validated `canonical_content` and empty `warnings`.
+Failures return `{"status": "error", "error": {"code": ..., "message": ...}}`
+with fixed safe messages: invalid input → 422; unconfigured/auth/rate-limit →
+503; timeout → 504; connection/refusal/invalid/validation → 502. All seven
+transformation capabilities remain `implemented: false`; analysis does not mark
+any output implemented, and the frontend is not connected to it.
+
 ## Retrieve/export from a live server
 
 From the root, start the API in one terminal:
@@ -100,9 +114,9 @@ Run it after the frontend build with both local ports free.
 ## Planned interfaces — not implemented or finalized
 
 - Source ingestion/upload, including modality extraction.
-- AI-driven canonical extraction and `/api/v1/analyze` (Phase 2B future work).
-  Internal deterministic canonical/evidence domain models exist in Phase 2A but
-  expose no HTTP interface; the application route set is unchanged.
+- Generation controls application and output generation (analysis only exists so far).
+  The deterministic canonical/evidence domain plus `POST /api/v1/analyze` are
+  implemented; the application route set is now four paths plus framework docs.
 - Generation controls beyond the nullable walking-skeleton request and future transformation responses.
 - Grounding/validation results and rendered exports.
 - A frontend API client derived from the generated contract.

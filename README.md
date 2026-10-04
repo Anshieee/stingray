@@ -3,11 +3,11 @@
 Stringray is a planned AI-powered multimodal platform that understands a common
 information source once and transforms it into configurable communication artefacts.
 
-**v0.3.0 candidate — Phase 2A deterministic canonical scaffolding. AI transformation is NOT implemented.**
-This iteration adds an internal deterministic source/evidence layer (normalization,
-paragraph segments, SHA-256, evidence references, canonical shell and structural
-validation) with no new API route and no model calls. The browser-to-API Phase-1
-slice is unchanged; see
+**v0.3.1 candidate — Phase 2B provider-backed structured source analysis.**
+`POST /api/v1/analyze` combines the deterministic Phase-2A foundation with an
+environment-configured OpenAI structured-analysis path. Without configuration it
+returns a controlled 503; the browser-to-API Phase-1 slice is unchanged and the
+frontend is not connected to analysis yet; see
 [PROGRESS.md](PROGRESS.md).
 
 ## Architecture and layout
@@ -44,11 +44,12 @@ CHANGELOG.md    Iteration history
 
 The frontend is a minimal walking-skeleton workspace. It sends only plain text and
 requests the `executive_summary` output. The backend returns one clearly labeled
-deterministic stub artifact. No AI model call, provider adapter or `/analyze`
-endpoint exists. A deterministic canonical/evidence foundation (`models/canonical.py`,
-`services/source_preparation.py`, `services/canonical_validation.py`) prepares and
-structurally validates shared source representations for future generators; it does
-not perform AI analysis. The seven-output vocabulary remains the eventual product specification.
+deterministic stub artifact for `/transform`. `POST /api/v1/analyze` is a separate
+backend-only analysis endpoint (not wired into the browser): it prepares the source
+deterministically, calls the configured OpenAI structured-analysis provider once,
+and returns validated canonical content, or an honest machine-readable error when
+unconfigured or when the provider fails. Source identity (SHA-256, counts, segment
+catalog) always comes from the server, never the model.
 Pre-existing root npm manifests in the operator's sandbox belong to Omnirush,
 are preserved locally, and are ignored. Run project npm commands in `frontend/`.
 
@@ -130,9 +131,13 @@ backend/.venv/bin/python scripts/verify_live.py
 ```
 
 It starts both processes, checks real health/capability/transform HTTP responses,
-repeats a known Project Aurora request, checks invalid input, exports the **live**
+repeats a known Project Aurora request, checks invalid input, proves `/analyze`
+returns a controlled 503 without provider configuration (no AI tokens spent),
+exports the **live**
 OpenAPI response to ignored `artifacts/openapi.json`, checks the served frontend
 workspace, then stops its processes. This is HTTP verification, not visual browser inspection.
+Provider env names (`AI_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_MODEL`) are scrubbed
+from the verification child process; automated checks never call a real model.
 
 ## API and live OpenAPI export
 
@@ -144,6 +149,9 @@ curl --fail --silent --show-error http://127.0.0.1:8000/api/v1/capabilities
 curl --fail --silent --show-error --request POST http://127.0.0.1:8000/api/v1/transform \
   --header 'Content-Type: application/json' \
   --data '{"source":{"type":"text","text":"The organization announced Project Aurora on 4 October 2026."},"outputs":["executive_summary"],"controls":{"target_audience":null,"tone":null,"language":null,"detail_level":null,"communication_objective":null,"content_style":null}}'
+curl --fail --silent --show-error --request POST http://127.0.0.1:8000/api/v1/analyze \
+  --header 'Content-Type: application/json' \
+  --data '{"source":{"type":"text","text":"The organization announced Project Aurora on 4 October 2026."}}'
 mkdir -p artifacts
 curl --fail --silent --show-error http://127.0.0.1:8000/openapi.json --output artifacts/openapi.json
 python3.12 -c 'import json; from pathlib import Path; print(sorted(json.loads(Path("artifacts/openapi.json").read_text())["paths"]))'
@@ -178,14 +186,41 @@ guard for this local integration slice; over-limit requests are rejected, never 
 truncated. The deterministic engine normalizes whitespace and returns a bounded excerpt.
 Its output begins with `[DETERMINISTIC STUB]`, and the API mode is `DETERMINISTIC_STUB`.
 
+## Phase 2B analysis contract and manual smoke (human only)
+
+`POST /api/v1/analyze` accepts only `{"source": {"type": "text", "text": "..."}}`
+(1..10,000 chars, non-whitespace, same policy as Phase 1). Success returns
+`status: ok`, `mode: AI_STRUCTURED_ANALYSIS`, truthful `provider` /
+`requested_model` / `provider_reported_model` (null when unreported), validated
+`canonical_content` and empty `warnings`. Failures are typed
+`{"status": "error", "error": {"code": ..., "message": ...}}` without secrets or
+source text: unconfigured/auth/rate-limit → 503, timeout → 504, upstream/refusal/
+invalid/validation → 502, bad input → 422.
+
+Manual real-provider smoke is a separate explicit human action and is never run by
+automated agents. With a secret supplied only in the environment:
+
+```sh
+AI_PROVIDER=openai OPENAI_MODEL=<explicit supported model ID> OPENAI_API_KEY=<secret> \
+  backend/.venv/bin/python -m uvicorn app.main:app --app-dir backend \
+  --host 127.0.0.1 --port 8000
+```
+
+then POST source `Project Aurora will begin on 12 October 2026. The programme will
+initially involve 18 research teams. Leadership requested a risk review before
+launch.` Expect OBSERVED evidence-backed date/statistic claims, INFERRED-only risk
+interpretation, resolvable segment IDs, server-owned SHA/segments and no confidence
+scores. Never paste keys into chat or commit them.
+
 ## Roadmap, deliverables and limitations
 
 - **P0:** foundation and contracts (`v0.1.0`).
-- **P1 (this iteration):** real browser -> live API -> clearly labeled deterministic
+- **P1:** real browser -> live API -> clearly labeled deterministic
   `executive_summary` stub -> browser, without live AI.
-- **P2:** canonical content model and real structured source understanding.
-- **Later, separately scoped:** ingestion, canonical extraction/evidence, provider
-  integration, grounded transformations, render/export and evaluation.
+- **P2A:** deterministic canonical scaffolding (`v0.3.0`).
+- **P2B (this iteration):** provider-backed structured source analysis via
+  `/api/v1/analyze`; frontend remains on the Phase-1 slice.
+- **Later, separately scoped:** ingestion, grounded transformations, render/export and evaluation.
 
 Challenge deliverables: source code, setup README, architecture document **maximum
 2 pages**, demo video **maximum 2 minutes**, technical presentation **maximum 5 slides**.

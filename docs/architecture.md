@@ -21,18 +21,29 @@ source limit. The service normalizes whitespace and returns a bounded excerpt; i
 does not summarize, call a model or fabricate citations/evidence. Capabilities
 describe seven defined outputs, all `implemented: false`; only the executive-summary
 deterministic stub advertises `stub_available: true` and `stub_mode: DETERMINISTIC_STUB`.
-There is no storage, AI provider or model call. A deterministic canonical layer
-exists internally but is not exposed over HTTP.
+There is no storage or model call in the walking skeleton. A deterministic
+canonical layer exists internally; provider-backed analysis is described below.
 
-## Implemented Phase 2A deterministic layer — no AI analysis
+## Implemented Phase 2B provider-backed analysis layer
 
 ```text
 Raw text
-  -> normalize_source_text() (CRLF/CR to LF, all else preserved)
-  -> PreparedSource (normalized text, SourceMetadata, SourceSegment[])
-  -> CanonicalContent shell (metadata + segment catalog, empty semantics)
-  -> validate_canonical_against_source() (loud structural checks)
+  -> prepare_source() (server-owned metadata + segments)
+  -> AnalysisProvider.analyze() once (semantic claims only, references only)
+  -> combine server identity + provider semantics
+  -> validate_canonical_against_source() (loud, no silent repair)
+  -> validated CanonicalContent
 ```
+
+`POST /api/v1/analyze` is served by a thin route over this service; the route
+owns no domain logic. The OpenAI adapter uses `client.responses.parse()` with the
+semantic Pydantic schema as `text_format`, trusted instructions separate from
+JSON-serialized untrusted segment input, configured model/key from
+`AI_PROVIDER`/`OPENAI_API_KEY`/`OPENAI_MODEL` (30s timeout, max_retries 1). The
+app starts without configuration; `/transform` never needs AI. Requested vs
+provider-reported model stay distinct (null when unreported, never copied).
+
+## Implemented Phase 2A deterministic layer — no AI analysis
 
 Normalization is line-ending only. Segmentation is paragraph-oriented: one or more
 blank/whitespace-only lines separate segments; offsets are exact character indices

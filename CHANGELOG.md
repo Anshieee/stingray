@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.1 — Phase 2B provider-backed structured source analysis
+
+Local candidate; backend analysis only, no frontend feature work.
+No remote release or publication.
+
+- Added provider-neutral analysis interface with server-owned source identity and
+  semantic-only provider output, plus an application service that prepares once,
+  calls the provider once and validates loudly without silent repair.
+- Added official OpenAI Responses-API structured-output adapter (Pydantic parsing,
+  env-driven model/key, 30s timeout, max_retries 1) and `POST /api/v1/analyze`
+  with honest typed errors and distinct requested/reported model metadata.
+- Automated tests use injected fakes and mock SDK clients only; live verification
+  scrubs provider credentials and proves unconfigured 503 behavior.
+
 ## v0.3.0 — Phase 2A deterministic canonical scaffolding
 
 Local candidate; no AI provider, model calls, new API route or frontend change.

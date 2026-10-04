@@ -19,6 +19,9 @@ from urllib.request import ProxyHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / "artifacts"
+# Provider env names scrubbed from the owned verification backend so live E2E
+# can never spend AI tokens; parent shell is never mutated and values never printed.
+SCRUBBED_ENV_VARS = ("AI_PROVIDER", "OPENAI_API_KEY", "OPENAI_MODEL")
 OUTPUTS = {
     "video_package", "linkedin_post", "x_post", "advisory",
     "infographic", "executive_summary", "presentation",
@@ -84,10 +87,14 @@ def main() -> None:
     with ExitStack() as stack:
         backend_log = stack.enter_context((ARTIFACTS / "backend.log").open("w"))
         frontend_log = stack.enter_context((ARTIFACTS / "frontend.log").open("w"))
+        backend_env = {
+            key: value for key, value in os.environ.items() if key not in SCRUBBED_ENV_VARS
+        }
         backend = subprocess.Popen(
             [sys.executable, "-m", "uvicorn", "app.main:app", "--app-dir", "backend",
              "--host", "127.0.0.1", "--port", "8000"],
             cwd=ROOT, stdout=backend_log, stderr=subprocess.STDOUT, start_new_session=True,
+            env=backend_env,
         )
         stack.callback(stop, backend)
         frontend = subprocess.Popen(
@@ -161,6 +168,17 @@ def main() -> None:
         print(json.dumps(invalid, separators=(",", ":")))
         print("Verified ordinary invalid input returns typed HTTP 422, not HTTP 500.")
 
+        analyze_status, analyze = post_json(
+            "http://127.0.0.1:8000/api/v1/analyze",
+            {"source": {"type": "text", "text": FIXTURE}},
+        )
+        assert analyze_status == 503
+        assert analyze["status"] == "error"
+        assert analyze["error"]["code"] == "PROVIDER_NOT_CONFIGURED"
+        print(f"POST http://127.0.0.1:8000/api/v1/analyze -> HTTP {analyze_status}")
+        print(json.dumps(analyze, separators=(",", ":")))
+        print("Verified unconfigured provider returns 503 without spending AI tokens.")
+
         url = "http://127.0.0.1:8000/openapi.json"
         raw_schema = fetch(url)
         export = ARTIFACTS / "openapi.json"
@@ -168,7 +186,7 @@ def main() -> None:
         assert export.read_bytes() == raw_schema
         schema = json.loads(export.read_bytes())
         assert set(schema["paths"]) == {
-            "/health", "/api/v1/capabilities", "/api/v1/transform"
+            "/health", "/api/v1/capabilities", "/api/v1/transform", "/api/v1/analyze"
         }
         models = schema["components"]["schemas"]
         assert set(models["OutputType"]["enum"]) == OUTPUTS
@@ -176,6 +194,8 @@ def main() -> None:
         assert models["TransformationCapability"]["properties"]["implemented"]["const"] is False
         assert "TransformRequest" in models
         assert "TransformResponse" in models
+        assert "AnalyzeRequest" in models
+        assert "AnalyzeResponse" in models
         print(f"GET {url} -> HTTP 200")
         print(f"Exported {len(raw_schema)} unchanged HTTP bytes to artifacts/openapi.json")
         print(f"SHA-256: {hashlib.sha256(raw_schema).hexdigest()}")

@@ -15,6 +15,15 @@ mismatches, invalid offsets and OBSERVED claims without evidence — loudly, wit
 silent repair (no evidence deletion, ID replacement, OBSERVED downgrade or digest
 patching).
 
+## Provider-authored claims (Phase 2B)
+
+The model may REFERENCE existing segment IDs as evidence but may never CREATE
+source identity (SHA-256, counts, segment IDs, offsets, catalog text). The
+application combines server-owned identity with provider-owned semantics and
+re-validates before success; provider output with unknown IDs, missing OBSERVED
+evidence or malformed structure fails honestly without silent repair. Requested
+vs provider-reported model metadata stay distinct.
+
 ## Structural versus semantic grounding (limitation)
 
 Structural validation proves a cited segment exists, its location is valid, its
