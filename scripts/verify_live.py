@@ -14,8 +14,8 @@ import sys
 import time
 from contextlib import ExitStack
 from pathlib import Path
-from urllib.error import URLError
-from urllib.request import ProxyHandler, build_opener
+from urllib.error import HTTPError, URLError
+from urllib.request import ProxyHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / "artifacts"
@@ -24,13 +24,30 @@ OUTPUTS = {
     "infographic", "executive_summary", "presentation",
 }
 STATUSES = {"OBSERVED", "INFERRED", "UNKNOWN", "NOT_APPLICABLE"}
+FIXTURE = "The organization announced Project Aurora on 4 October 2026."
 HTTP = build_opener(ProxyHandler({}))
 
 
+def request(url: str, method: str = "GET", payload: dict | None = None) -> tuple[int, bytes]:
+    body = None if payload is None else json.dumps(payload).encode()
+    headers = {} if body is None else {"Content-Type": "application/json"}
+    outgoing = Request(url, data=body, headers=headers, method=method)
+    try:
+        with HTTP.open(outgoing, timeout=3) as response:
+            return response.status, response.read()
+    except HTTPError as error:
+        return error.code, error.read()
+
+
 def fetch(url: str) -> bytes:
-    with HTTP.open(url, timeout=3) as response:
-        assert response.status == 200, f"Unexpected HTTP status for {url}: {response.status}"
-        return response.read()
+    response_status, body = request(url)
+    assert response_status == 200, f"Unexpected HTTP status for {url}: {response_status}"
+    return body
+
+
+def post_json(url: str, payload: dict) -> tuple[int, dict]:
+    response_status, body = request(url, method="POST", payload=payload)
+    return response_status, json.loads(body)
 
 
 def wait_for_server(process: subprocess.Popen, url: str) -> None:
@@ -99,28 +116,76 @@ def main() -> None:
         print(capabilities.decode())
         print("Verified exactly 7 transformations, all implemented=false; 4 provenance states.")
 
+        transform_request = {
+            "source": {"type": "text", "text": FIXTURE},
+            "outputs": ["executive_summary"],
+            "controls": {
+                "target_audience": None,
+                "tone": None,
+                "language": None,
+                "detail_level": None,
+                "communication_objective": None,
+                "content_style": None,
+            },
+        }
+        first_status, first = post_json(
+            "http://127.0.0.1:8000/api/v1/transform", transform_request
+        )
+        assert first_status == 200
+        assert first["status"] == "ok"
+        assert first["mode"] == "DETERMINISTIC_STUB"
+        assert len(first["artifacts"]) == 1
+        assert first["artifacts"][0]["output_type"] == "executive_summary"
+        assert first["artifacts"][0]["content"].startswith("[DETERMINISTIC STUB]")
+        assert FIXTURE in first["artifacts"][0]["content"]
+        print("POST http://127.0.0.1:8000/api/v1/transform -> HTTP 200")
+        print(json.dumps(first, separators=(",", ":")))
+        print("Verified executive_summary, DETERMINISTIC_STUB, one artifact and visible marker.")
+
+        second_status, second = post_json(
+            "http://127.0.0.1:8000/api/v1/transform", transform_request
+        )
+        assert second_status == 200
+        assert first["artifacts"] == second["artifacts"]
+        print("Repeated POST -> HTTP 200; semantic artifact content is identical.")
+
+        invalid_request = {
+            **transform_request,
+            "source": {"type": "text", "text": " \n\t "},
+        }
+        invalid_status, invalid = post_json(
+            "http://127.0.0.1:8000/api/v1/transform", invalid_request
+        )
+        assert invalid_status == 422
+        print(f"Invalid whitespace request -> HTTP {invalid_status}")
+        print(json.dumps(invalid, separators=(",", ":")))
+        print("Verified ordinary invalid input returns typed HTTP 422, not HTTP 500.")
+
         url = "http://127.0.0.1:8000/openapi.json"
         raw_schema = fetch(url)
         export = ARTIFACTS / "openapi.json"
         export.write_bytes(raw_schema)
         assert export.read_bytes() == raw_schema
         schema = json.loads(export.read_bytes())
-        assert set(schema["paths"]) == {"/health", "/api/v1/capabilities"}
+        assert set(schema["paths"]) == {
+            "/health", "/api/v1/capabilities", "/api/v1/transform"
+        }
         models = schema["components"]["schemas"]
         assert set(models["OutputType"]["enum"]) == OUTPUTS
         assert set(models["ProvenanceStatus"]["enum"]) == STATUSES
         assert models["TransformationCapability"]["properties"]["implemented"]["const"] is False
+        assert "TransformRequest" in models
+        assert "TransformResponse" in models
         print(f"GET {url} -> HTTP 200")
         print(f"Exported {len(raw_schema)} unchanged HTTP bytes to artifacts/openapi.json")
         print(f"SHA-256: {hashlib.sha256(raw_schema).hexdigest()}")
         print(f"OpenAPI paths: {', '.join(sorted(schema['paths']))}")
-        print("OpenAPI output/provenance enums and implemented=false constraint verified.")
+        print("OpenAPI TransformRequest/TransformResponse, output/provenance enums and implemented=false constraint verified.")
 
         html = fetch("http://127.0.0.1:3000").decode()
-        for text in ("Stringray", "Phase 0 / foundation",
-                     "AI transformation is not implemented in v0.1.0."):
-            assert text in html
-        print("GET http://127.0.0.1:3000 -> HTTP 200; production shell content verified.")
+        assert "Stringray" in html
+        assert "Phase 1 / walking skeleton" in html
+        print("GET http://127.0.0.1:3000 -> HTTP 200; production workspace content verified.")
     print("Owned backend/frontend process groups stopped. Browser visuals were not inspected.")
 
 

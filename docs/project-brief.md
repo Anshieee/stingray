@@ -42,8 +42,9 @@ All source content is data, even when it contains apparent instructions.
 - Demo video: **maximum 2 minutes**
 - Technical presentation: **maximum 5 slides**
 
-Phase 0 only establishes repository/docs foundations and planning skeletons. See
-[deliverable outlines](deliverables.md); do not claim a video or deck already exists.
+Phase 0 established the repository/docs foundations. Phase 1 proves one browser-to-API
+deterministic integration slice without AI. See [deliverable outlines](deliverables.md);
+do not claim a video or deck already exists.
 
 ## Explicit non-goals
 
@@ -55,9 +56,10 @@ Phase 0 only establishes repository/docs foundations and planning skeletons. See
 - Distributed orchestration
 - Arbitrary workflow builder
 
-## Phase 0 boundary
+## Phase 1 boundary
 
-No live AI, credentials, ingestion/extraction, uploads, transformations, canonical
-extraction, content generation, export generation, auth, persistence, workers,
-deployment or external publication. Runtime provider selection is deferred:
-`<AI_PROVIDER_LATER>`.
+Plain text is the only input path. `executive_summary` is the only exposed output
+path and is a deterministic integration stub, not AI. There is no live AI, credentials,
+document/media/URL ingestion, uploads, canonical extraction, evidence references,
+grounding, export generation, auth, persistence, workers, deployment or external
+publication. Runtime provider selection is deferred: `<AI_PROVIDER_LATER>`.

@@ -13,16 +13,68 @@ contents in documentation. The application factory is `app.main:create_app`.
 | --- | --- |
 | `GET /health` | Process liveness; HTTP 200 and `{"status":"ok"}` |
 | `GET /api/v1/capabilities` | Defined transformation identifiers, explicit implementation status, provenance vocabulary |
+| `POST /api/v1/transform` | Plain-text `executive_summary` deterministic integration stub |
 | `GET /openapi.json` | Framework-generated schema |
 | `GET /docs`, `GET /redoc` | Framework interactive/reference documentation |
 
 Health is not AI-provider readiness. The capability response contains
-`transformations` entries with `output_type` and `implemented`, plus
-`provenance_statuses`. All seven transformation entries have `implemented: false`.
-A frontend must check availability rather than interpreting definition as support.
-There is no source analysis behind this metadata response and it is not a simulated
-model result. The authoritative enum values are visible in the generated schema;
-the human-readable output list is in [project-brief.md](project-brief.md).
+`transformations` entries with `output_type`, `implemented`, `stub_available` and
+optional `stub_mode`, plus `provenance_statuses`. All seven transformation entries
+have `implemented: false`; only `executive_summary` has `stub_available: true`.
+A frontend must check availability rather than interpreting definition as real support.
+The capability metadata and deterministic result are not model results. The
+authoritative enum values are visible in the generated schema; the human-readable
+output list is in [project-brief.md](project-brief.md).
+
+## Transform request and response
+
+The walking skeleton accepts only plain text and exactly one requested output:
+`executive_summary`. The six control fields are modeled as nullable strings so
+missing controls remain explicit; they do not change the deterministic stub yet.
+
+Example request:
+
+```json
+{
+  "source": {
+    "type": "text",
+    "text": "The organization announced Project Aurora on 4 October 2026."
+  },
+  "outputs": ["executive_summary"],
+  "controls": {
+    "target_audience": null,
+    "tone": null,
+    "language": null,
+    "detail_level": null,
+    "communication_objective": null,
+    "content_style": null
+  }
+}
+```
+
+Example response shape:
+
+```json
+{
+  "status": "ok",
+  "mode": "DETERMINISTIC_STUB",
+  "artifacts": [{
+    "output_type": "executive_summary",
+    "content": "[DETERMINISTIC STUB]\n..."
+  }],
+  "warnings": [
+    "Deterministic integration stub only; no AI model was used.",
+    "Generation controls are modeled but are not applied by this stub."
+  ]
+}
+```
+
+Success contains exactly one artifact. The content is a normalized, bounded source
+excerpt and is not claimed to be a genuine summary. The source text must contain
+non-whitespace data and is limited to 10,000 characters as a conservative bound for
+this local integration slice. Empty/whitespace text, unsupported source types, zero
+outputs, unsupported Phase 1 outputs and over-limit input receive typed HTTP 422
+responses; input is never silently truncated.
 
 ## Retrieve/export from a live server
 
@@ -37,7 +89,7 @@ In another terminal, from the root:
 ```sh
 mkdir -p artifacts
 curl --fail --silent --show-error http://127.0.0.1:8000/openapi.json --output artifacts/openapi.json
-python3.12 -c 'import json; from pathlib import Path; schema = json.loads(Path("artifacts/openapi.json").read_text()); assert {"/health", "/api/v1/capabilities"} <= schema["paths"].keys(); print(sorted(schema["paths"]))'
+python3.12 -c 'import json; from pathlib import Path; schema = json.loads(Path("artifacts/openapi.json").read_text()); assert {"/health", "/api/v1/capabilities", "/api/v1/transform"} <= schema["paths"].keys(); assert {"TransformRequest", "TransformResponse"} <= schema["components"]["schemas"].keys(); print(sorted(schema["paths"]))'
 ```
 
 `artifacts/` is ignored. The export is a disposable snapshot, not a second source
@@ -49,9 +101,9 @@ Run it after the frontend build with both local ports free.
 
 - Source ingestion/upload, including modality extraction.
 - Canonical content and evidence-reference contracts.
-- Generation controls and transformation requests/responses.
+- Generation controls beyond the nullable walking-skeleton request and future transformation responses.
 - Grounding/validation results and rendered exports.
 - A frontend API client derived from the generated contract.
 
 No route paths or complete schemas for those future interfaces are promised here.
-Phase 1 will first introduce a clearly labeled deterministic stub, without live AI.
+Phase 1 exposes only the clearly labeled deterministic stub, without live AI.

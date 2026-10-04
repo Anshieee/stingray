@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.models.capabilities import CapabilitiesResponse, TransformationCapability
-from app.models.common import OutputType, ProvenanceStatus
+from app.models.common import OutputType, ProvenanceStatus, TransformationMode
 
 router = APIRouter(tags=["capabilities"])
 
@@ -11,7 +11,16 @@ def capabilities() -> CapabilitiesResponse:
     """List defined transformation identifiers, availability, and provenance vocabulary."""
     return CapabilitiesResponse(
         transformations=[
-            TransformationCapability(output_type=output_type, implemented=False)
+            TransformationCapability(
+                output_type=output_type,
+                implemented=False,
+                stub_available=output_type == OutputType.EXECUTIVE_SUMMARY,
+                stub_mode=(
+                    TransformationMode.DETERMINISTIC_STUB
+                    if output_type == OutputType.EXECUTIVE_SUMMARY
+                    else None
+                ),
+            )
             for output_type in OutputType
         ],
         provenance_statuses=list(ProvenanceStatus),

@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "stringray-backend"
-version = "0.1.0"
-description = "Stringray Phase 0 API foundation"
+version = "0.2.0"
+description = "Stringray Phase 1 walking-skeleton API"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.142.2,<1",

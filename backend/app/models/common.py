@@ -11,6 +11,14 @@ class OutputType(StrEnum):
     PRESENTATION = "presentation"
 
 
+class SourceType(StrEnum):
+    TEXT = "text"
+
+
+class TransformationMode(StrEnum):
+    DETERMINISTIC_STUB = "DETERMINISTIC_STUB"
+
+
 class ProvenanceStatus(StrEnum):
     """Source support semantics, independent of output type or confidence."""
 

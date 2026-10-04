@@ -4,8 +4,8 @@ Planning only. Do not present these outlines as completed submission materials.
 
 | Deliverable | Current state | Limit |
 | --- | --- | --- |
-| Source repository | Local Phase 0 foundation candidate | No remote publication authorized |
-| Setup README | Phase 0 setup and checks | Maintain as features arrive |
+| Source repository | Local Phase 1 walking-skeleton candidate | No remote publication authorized |
+| Setup README | Phase 1 setup and checks | Maintain as features arrive |
 | Architecture document | Living `architecture.md` skeleton | Maximum 2 pages in final layout |
 | Demo video | Not created; outline below | Maximum 2 minutes |
 | Technical presentation | Not created; outline below | Maximum 5 slides |
@@ -29,4 +29,4 @@ never edit a simulation into a claim of real model capability.
 4. Implemented demonstration and measured evaluation, when available.
 5. Engineering choices, limitations and roadmap.
 
-No slides, screenshots, fabricated metrics or video are generated in Phase 0.
+No slides, screenshots, fabricated metrics or video are generated in Phase 1.

@@ -1,8 +1,9 @@
 # Provenance and honesty contract
 
 These semantics bind future ingestion, canonical modeling, transformation,
-validation and rendering. Phase 0 defines the enum and exposes its vocabulary;
-it does **not** extract facts, assign claim provenance, or implement evidence validation.
+validation and rendering. Phase 1 preserves the enum and exposes its vocabulary,
+but the deterministic integration stub does **not** extract facts, assign claim
+provenance, or implement evidence validation.
 
 ## OBSERVED
 
@@ -60,11 +61,12 @@ LinkedIn artefact. It is not a shortcut for unreadable or incomplete input.
    to make an output look more polished violates the contract.
 4. Keep compound statements with mixed provenance distinguishable. An inferred
    conclusion cannot inherit OBSERVED merely because another clause cites evidence.
-5. Validation must eventually detect unsupported observed claims. Phase 0 makes no
+5. Validation must eventually detect unsupported observed claims. Phase 1 makes no
    claim that such runtime validation exists yet.
 6. Simulated/stubbed development responses must be explicitly identified in API/UI
-   output as **stub** or **simulation**, never as real model results. Phase 0 has no
-   content-generation stub or model output.
+   output as **stub** or **simulation**, never as real model results. Phase 1 uses
+   `DETERMINISTIC_STUB` and `DETERMINISTIC STUB / NO AI`; this is integration
+   scaffolding, not a content-generation claim.
 
 ## Trust boundary: source is DATA, not instructions
 
