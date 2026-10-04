@@ -2,7 +2,8 @@
 
 ## v0.2.0 — Phase 1 walking skeleton
 
-Local candidate; awaiting human verification. No remote release or publication.
+Local candidate; automated/local verification passed independently by the human.
+Browser/visual verification remains outstanding. No remote release or publication.
 
 - Added typed `POST /api/v1/transform` for plain text and exactly one
   `executive_summary` request.
@@ -18,7 +19,7 @@ remain unimplemented.
 
 ## v0.1.0 — Phase 0 foundation
 
-Local candidate; awaiting human verification. No remote release or publication.
+Human-verified baseline; no remote release or publication.
 
 - Added a minimal Next.js/React/TypeScript/Tailwind frontend shell.
 - Added FastAPI health and capability endpoints; all seven output types are unavailable.

@@ -1,9 +1,12 @@
 # Progress
 
 - **Current iteration:** v0.2.0 — Phase 1 / walking skeleton.
-- **Current verified tag:** NONE.
+- **Current verified tag:** v0.1.0.
 - **Last human-verified fallback tag:** v0.1.0.
-- **Local release status:** v0.2.0 created locally; awaiting human verification.
+- **Current candidate:** v0.2.0.
+- **v0.2.0 automated/local verification:** passed independently by the human.
+- **v0.2.0 human browser/visual verification:** outstanding.
+- **Local release status:** v0.2.0 created locally; awaiting human browser/visual verification.
 - **Next planned phase:** Phase 2 — Canonical Content Model and real structured source understanding.
 
 ## Completed items
@@ -20,8 +23,9 @@
 
 ## Verification record
 
-Automated/local checks completed on **2026-10-04**, using Git 2.55.0, Python
-3.12.13 (default system Python is 3.14.7), Node 24.21.0 and npm 12.1.0:
+Automated/local checks completed on **2026-10-04** and independently re-run successfully
+by the human, using Git 2.55.0, Python 3.12.13 (default system Python is 3.14.7),
+Node 24.21.0 and npm 12.1.0:
 
 | Check | Evidence |
 | --- | --- |
@@ -41,12 +45,13 @@ Automated/local checks completed on **2026-10-04**, using Git 2.55.0, Python
 
 Live export SHA-256:
 `c46eadfe8575e78f9955a9bf1300c52b8c4579fd1eabd917a892bb26fa46b660`.
-The live script stopped both process groups after verification. These are local
-automated results, not browser visual or hosted-CI evidence.
+The live script stopped both process groups after verification. These automated/local
+results were independently re-run by the human; they do not include browser visual
+verification or hosted-CI evidence.
 
-Only external/human verification can promote a tag to "current verified tag";
-record the verifier, date and evidence here when available. A local annotated tag
-does not establish independent verification.
+The current human-verified tag remains v0.1.0. The v0.2.0 candidate must not be
+promoted until the human browser/visual verification is recorded. A local annotated
+tag does not establish independent verification.
 
 ## Current limitations
 
@@ -66,7 +71,8 @@ does not establish independent verification.
 
 ## Open issues
 
-- Human verification of the local v0.2.0 candidate is outstanding; v0.1.0 is the recorded fallback tag.
+- Human browser/visual verification of the local v0.2.0 candidate is outstanding;
+  v0.1.0 remains the current human-verified fallback tag.
 - Hosted GitHub Actions has not run; no push is authorized.
 - Browser visual appearance and manual browser interaction have not been inspected.
 - ESLint is pinned to 9.39.5: the installed Next.js React lint plugin fails under
