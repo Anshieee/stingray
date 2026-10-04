@@ -1,13 +1,13 @@
 # Progress
 
-- **Current iteration:** v0.2.0 — Phase 1 / walking skeleton.
-- **Current verified tag:** v0.1.0.
-- **Last human-verified fallback tag:** v0.1.0.
-- **Current candidate:** v0.2.0.
-- **v0.2.0 automated/local verification:** passed independently by the human.
-- **v0.2.0 human browser/visual verification:** outstanding.
-- **Local release status:** v0.2.0 created locally; awaiting human browser/visual verification.
-- **Next planned phase:** Phase 2 — Canonical Content Model and real structured source understanding.
+- **Current iteration:** v0.2.2 — Phase 1 verified closeout.
+- **Current verified tag:** v0.2.1.
+- **Last human-verified fallback tag:** v0.2.1.
+- **Current candidate:** v0.2.2 (documentation/environment closeout only; no application change).
+- **v0.2.1 automated/local verification:** passed independently by the human.
+- **v0.2.1 human browser/visual verification:** complete.
+- **Local release status:** v0.2.2 created locally; Phase 1 complete.
+- **Next planned phase:** Phase 2 — Canonical Content Model and real structured source understanding. Phase 2 has not started; no v0.3.0 candidate exists yet.
 
 ## Completed items
 
@@ -46,12 +46,17 @@ Node 24.21.0 and npm 12.1.0:
 Live export SHA-256:
 `c46eadfe8575e78f9955a9bf1300c52b8c4579fd1eabd917a892bb26fa46b660`.
 The live script stopped both process groups after verification. These automated/local
-results were independently re-run by the human; they do not include browser visual
-verification or hosted-CI evidence.
+results were independently re-run by the human; they do not include hosted-CI evidence.
 
-The current human-verified tag remains v0.1.0. The v0.2.0 candidate must not be
-promoted until the human browser/visual verification is recorded. A local annotated
-tag does not establish independent verification.
+Human browser/visual verification of Phase 1 is complete: real submission worked,
+successful output was visibly labeled `DETERMINISTIC STUB / NO AI`, backend-down state
+produced an honest connection error, empty source input produced a validation error,
+no fake confidence/citations/analytics were shown, and layout was usable.
+Browser-extension DOM injection (Dark Reader, Video Speed Controller) caused false
+hydration warnings during verification; they were not Stringray defects.
+
+The current human-verified fallback tag is v0.2.1. Phase 1 is complete and Phase 2
+has not started. A local annotated tag does not establish remote publication.
 
 ## Current limitations
 
@@ -71,10 +76,7 @@ tag does not establish independent verification.
 
 ## Open issues
 
-- Human browser/visual verification of the local v0.2.0 candidate is outstanding;
-  v0.1.0 remains the current human-verified fallback tag.
 - Hosted GitHub Actions has not run; no push is authorized.
-- Browser visual appearance and manual browser interaction have not been inspected.
 - ESLint is pinned to 9.39.5: the installed Next.js React lint plugin fails under
   ESLint 10 (`contextOrFilename.getFilename is not a function`). ESLint 9 emits a
   support/deprecation notice on install. Revisit when the plugin supports ESLint 10.

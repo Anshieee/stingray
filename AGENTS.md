@@ -65,6 +65,8 @@ The live script needs free ports 8000/3000 and a completed frontend build. It ex
 actual HTTP OpenAPI bytes to ignored `artifacts/`. It does not inspect browser visuals.
 If npm's default cache is unwritable, use `env npm_config_cache=.npm-cache npm ci`
 inside `frontend/`. Never require secrets to run foundation checks.
+If the repository is moved or renamed, recreate `backend/.venv` because editable
+virtual environments may contain absolute paths.
 
 ## Architectural invariants
 

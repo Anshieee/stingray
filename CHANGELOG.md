@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.2 — Phase 1 verified closeout
+
+Human-verified fallback is now v0.2.1; Phase 1 browser/visual verification is
+complete. No remote release or publication.
+
+- Recorded completed human verification for Phase 1 with no application change.
+- Recreated the ignored local backend virtual environment from locked
+  dependencies after the repository move (stale editable-install path fix).
+
 ## v0.2.0 — Phase 1 walking skeleton
 
 Local candidate; automated/local verification passed independently by the human.
