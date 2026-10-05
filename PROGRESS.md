@@ -1,14 +1,15 @@
 # Progress
 
-- **Current iteration:** v0.3.2 — Phase 2B strict nested provider schema repair.
+- **Current iteration:** v0.3.3 — Phase 2B FreeLLMAPI provider adaptation.
 - **Current verified tag:** v0.3.0.
 - **Last human-verified fallback tag:** v0.3.0.
-- **Current candidate:** v0.3.2 (repair only; no new product functionality).
-- **v0.3.1 status:** local Phase-2B candidate rejected during human verification
-  because nested provider objects silently accepted extra fields.
-- **Phase 2B status:** repaired and locally verified; real-provider smoke pending
-  human action.
-- **Local release status:** v0.3.2 created locally; awaiting human verification.
+- **Current candidate:** v0.3.3 (provider adaptation only; no frontend feature work).
+- **v0.3.1 status:** rejected local candidate (nested extras silently accepted).
+- **v0.3.2 status:** strict-schema repair passed local human checks, but real
+  provider smoke was not run.
+- **Phase 2B status:** FreeLLMAPI auto-router support added and locally verified
+  with fakes/mocks; real FreeLLMAPI smoke pending human action.
+- **Local release status:** v0.3.3 created locally; awaiting human verification.
 - **Next planned phase:** Phase 3A — document ingestion foundation (not started).
 
 ## Completed items

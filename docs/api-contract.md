@@ -81,7 +81,9 @@ responses; input is never silently truncated.
 
 `POST /api/v1/analyze` accepts only `{"source": {"type": "text", "text": "..."}}`
 with the same 1..10,000 character non-whitespace policy. Success returns
-`status: ok`, `mode: AI_STRUCTURED_ANALYSIS`, `provider`, `requested_model`,
+`status: ok`, `mode: AI_STRUCTURED_ANALYSIS`, `provider` (`openai` or
+`freellmapi` depending on configuration, never the transport library name),
+`requested_model` (the exact configured model/router string, e.g. `auto`),
 `provider_reported_model` (null when the provider reports none, never a copy of
 the requested value), validated `canonical_content` and empty `warnings`.
 Failures return `{"status": "error", "error": {"code": ..., "message": ...}}`

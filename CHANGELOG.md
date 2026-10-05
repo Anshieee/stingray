@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.3.3 — Phase 2B FreeLLMAPI provider adaptation
+
+Local candidate; backend provider adaptation only, no frontend change.
+No remote release or publication.
+
+- Generalized the structured Responses adapter to OpenAI-compatible endpoints
+  with explicit provider identity and base URL; `AI_PROVIDER=freellmapi` uses
+  `FREELLMAPI_API_KEY`/`FREELLMAPI_MODEL` (e.g. `auto`) with a documented local
+  router default, returning `provider: freellmapi` without fabricating the
+  reported model.
+- Direct `AI_PROVIDER=openai` support preserved unchanged; live verification
+  scrubs both provider families and still proves unconfigured 503 behavior.
+
 ## v0.3.2 — Phase 2B strict nested provider schema repair
 
 Repair only; no new product functionality, no frontend change.

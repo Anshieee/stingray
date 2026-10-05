@@ -144,3 +144,17 @@
 - **Alternatives:** live-model integration tests; fake provider mode in production.
 - **Consequences:** zero external AI calls in automation; real-provider smoke is a
   documented human-only action.
+
+## ADR-014 — FreeLLMAPI through the OpenAI-compatible protocol
+
+- **Status:** accepted for Phase 2B provider adaptation.
+- **Context:** the human operates a FreeLLMAPI unified key with a local auto
+  router instead of a direct OpenAI key; FreeLLMAPI accepts the Responses API
+  with structured `text.format: json_schema`.
+- **Choice:** generalize the existing adapter into `OpenAICompatibleAnalysisProvider`
+  (explicit `provider` identity plus `base_url`) with a thin `OpenAIAnalysisProvider`
+  subclass preserving direct-OpenAI behavior; transport SDK identity does not
+  determine application provider identity.
+- **Alternatives:** a duplicated FreeLLMAPI adapter; downgrading to ad-hoc JSON parsing.
+- **Consequences:** one structured-parse implementation; `freellmapi` results carry
+  honest router metadata; no new dependency; X-Routed-Via capture deferred.

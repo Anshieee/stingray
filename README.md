@@ -3,9 +3,11 @@
 Stringray is a planned AI-powered multimodal platform that understands a common
 information source once and transforms it into configurable communication artefacts.
 
-**v0.3.1 candidate — Phase 2B provider-backed structured source analysis.**
-`POST /api/v1/analyze` combines the deterministic Phase-2A foundation with an
-environment-configured OpenAI structured-analysis path. Without configuration it
+**v0.3.3 candidate — Phase 2B FreeLLMAPI provider adaptation.**
+`POST /api/v1/analyze` supports `AI_PROVIDER=openai` and
+`AI_PROVIDER=freellmapi` (OpenAI-compatible auto router, default
+`http://localhost:3001/v1`, router value such as `auto` passed through
+unchanged). Without configuration it
 returns a controlled 503; the browser-to-API Phase-1 slice is unchanged and the
 frontend is not connected to analysis yet; see
 [PROGRESS.md](PROGRESS.md).
@@ -136,7 +138,8 @@ returns a controlled 503 without provider configuration (no AI tokens spent),
 exports the **live**
 OpenAPI response to ignored `artifacts/openapi.json`, checks the served frontend
 workspace, then stops its processes. This is HTTP verification, not visual browser inspection.
-Provider env names (`AI_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_MODEL`) are scrubbed
+Provider env names (`AI_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_MODEL`,
+`FREELLMAPI_API_KEY`, `FREELLMAPI_BASE_URL`, `FREELLMAPI_MODEL`) are scrubbed
 from the verification child process; automated checks never call a real model.
 
 ## API and live OpenAPI export
@@ -198,10 +201,15 @@ source text: unconfigured/auth/rate-limit → 503, timeout → 504, upstream/ref
 invalid/validation → 502, bad input → 422.
 
 Manual real-provider smoke is a separate explicit human action and is never run by
-automated agents. With a secret supplied only in the environment:
+automated agents. Direct OpenAI: `AI_PROVIDER=openai` with `OPENAI_MODEL` and
+`OPENAI_API_KEY` in the environment. FreeLLMAPI auto router:
+`AI_PROVIDER=freellmapi` with `FREELLMAPI_MODEL=auto`,
+`FREELLMAPI_BASE_URL=http://localhost:3001/v1` and `FREELLMAPI_API_KEY` in the
+environment. Start the API, e.g.:
 
 ```sh
-AI_PROVIDER=openai OPENAI_MODEL=<explicit supported model ID> OPENAI_API_KEY=<secret> \
+AI_PROVIDER=freellmapi FREELLMAPI_MODEL=auto \
+  FREELLMAPI_BASE_URL=http://localhost:3001/v1 FREELLMAPI_API_KEY=<secret> \
   backend/.venv/bin/python -m uvicorn app.main:app --app-dir backend \
   --host 127.0.0.1 --port 8000
 ```

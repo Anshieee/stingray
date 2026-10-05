@@ -36,11 +36,14 @@ Raw text
 ```
 
 `POST /api/v1/analyze` is served by a thin route over this service; the route
-owns no domain logic. The OpenAI adapter uses `client.responses.parse()` with the
-semantic Pydantic schema as `text_format`, trusted instructions separate from
-JSON-serialized untrusted segment input, configured model/key from
-`AI_PROVIDER`/`OPENAI_API_KEY`/`OPENAI_MODEL` (30s timeout, max_retries 1). The
-app starts without configuration; `/transform` never needs AI. Requested vs
+owns no domain logic. One shared OpenAI-compatible adapter serves both provider
+identities via `client.responses.parse()` with the semantic Pydantic schema as
+`text_format`, trusted instructions separate from JSON-serialized untrusted
+segment input, and explicit key/model/base URL (direct OpenAI uses the SDK
+default endpoint; FreeLLMAPI uses its configured router URL, default
+`http://localhost:3001/v1`, with router values such as `auto` passed through
+unchanged). Transport SDK identity never determines application provider
+identity: results report `openai` or `freellmapi` respectively. Requested vs
 provider-reported model stay distinct (null when unreported, never copied).
 
 ## Implemented Phase 2A deterministic layer — no AI analysis

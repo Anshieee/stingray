@@ -21,7 +21,14 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / "artifacts"
 # Provider env names scrubbed from the owned verification backend so live E2E
 # can never spend AI tokens; parent shell is never mutated and values never printed.
-SCRUBBED_ENV_VARS = ("AI_PROVIDER", "OPENAI_API_KEY", "OPENAI_MODEL")
+SCRUBBED_ENV_VARS = (
+    "AI_PROVIDER",
+    "OPENAI_API_KEY",
+    "OPENAI_MODEL",
+    "FREELLMAPI_API_KEY",
+    "FREELLMAPI_BASE_URL",
+    "FREELLMAPI_MODEL",
+)
 OUTPUTS = {
     "video_package", "linkedin_post", "x_post", "advisory",
     "infographic", "executive_summary", "presentation",

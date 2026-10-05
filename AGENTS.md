@@ -5,10 +5,10 @@
 Stringray will transform a common multimodal information source into one or more
 communication artefacts controlled by audience, tone, language, detail, objective
 and style. It must analyze each source once, preserving evidence and provenance
-across every output. The current iteration is **v0.3.1 candidate, Phase 2B /
-provider-backed structured source analysis**: `POST /api/v1/analyze` combines
-deterministic server-owned source identity with one OpenAI structured-analysis
-call, validated loudly before success. Read PROGRESS.md before
+across every output. The current iteration is **v0.3.3 candidate, Phase 2B /
+FreeLLMAPI provider adaptation**: `POST /api/v1/analyze` supports `openai` and
+`freellmapi` provider identities over one shared OpenAI-compatible structured
+adapter (transport SDK != provider identity). Read PROGRESS.md before
 starting work and obtain an explicit phase scope before adding product functionality.
 
 ## Repository map
@@ -20,9 +20,10 @@ starting work and obtain an explicit phase scope before adding product functiona
   (`models/analysis.py`, `services/analysis*.py`, `openai_provider.py`,
   `api/routes/analyze.py`) with injected fakes in tests.
 - `backend/tests/`: HTTP behaviour tests, canonical tests
-  (`test_source_preparation.py`, `test_canonical_models.py`) and analysis tests
-  (`test_analysis_service.py`, `test_analyze_api.py`, `test_openai_provider.py`);
-  `backend/pyproject.toml`: tooling/dependencies (includes official OpenAI SDK).
+  (`test_source_preparation.py`, `test_canonical_models.py`, `test_strict_schema.py`)
+  and analysis tests (`test_analysis_service.py`, `test_analyze_api.py`,
+  `test_openai_provider.py`, `test_freellmapi_provider.py`);
+  `backend/pyproject.toml`: tooling/dependencies (official OpenAI SDK as protocol client).
 - `backend/requirements-dev.lock`: generated dependency constraints for installs/CI.
 - `docs/`: brief, living architecture, API/provenance contracts, deliverable outlines.
 - `scripts/`: live HTTP/quick-E2E/OpenAPI verification and staged-content hygiene.
@@ -102,7 +103,8 @@ virtual environments may contain absolute paths.
    `AnalysisProvider` once, combines server identity with provider semantics and
    validates before success. Automated tests use injected fakes and mock SDK clients
    only — never real tokens, never `AI_PROVIDER=fake` production fallback. The live
-   verifier scrubs provider env vars from its child backend. Provider-controlled
+   verifier scrubs provider env vars (OpenAI and FreeLLMAPI families) from its
+   child backend. Provider-controlled
    models (`ProvenancedClaim`, `EvidenceReference`) are strictly closed
    (`extra="forbid"`): unknown fields such as `confidence` are rejected, never ignored.
 
