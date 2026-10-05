@@ -102,7 +102,9 @@ virtual environments may contain absolute paths.
    `AnalysisProvider` once, combines server identity with provider semantics and
    validates before success. Automated tests use injected fakes and mock SDK clients
    only — never real tokens, never `AI_PROVIDER=fake` production fallback. The live
-   verifier scrubs provider env vars from its child backend.
+   verifier scrubs provider env vars from its child backend. Provider-controlled
+   models (`ProvenancedClaim`, `EvidenceReference`) are strictly closed
+   (`extra="forbid"`): unknown fields such as `confidence` are rejected, never ignored.
 
 ## Provenance and honesty
 

@@ -24,6 +24,11 @@ re-validates before success; provider output with unknown IDs, missing OBSERVED
 evidence or malformed structure fails honestly without silent repair. Requested
 vs provider-reported model metadata stay distinct.
 
+Provider-controlled objects are strictly closed: `ProvenancedClaim` and
+`EvidenceReference` both use `extra="forbid"`, so unknown fields such as a
+numeric `confidence` are rejected at parse time rather than silently ignored.
+No confidence field exists; rejection is the contract.
+
 ## Structural versus semantic grounding (limitation)
 
 Structural validation proves a cited segment exists, its location is valid, its

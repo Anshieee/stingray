@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.2 — Phase 2B strict nested provider schema repair
+
+Repair only; no new product functionality, no frontend change.
+No remote release or publication.
+
+- Made shared canonical models `ProvenancedClaim` and `EvidenceReference`
+  explicitly strict (`extra="forbid"`), so nested `confidence` or other unknown
+  provider fields are rejected instead of silently ignored.
+- Narrowed the staged-content hygiene credential heuristic to exempt provable
+  non-secrets (environment lookups, bare pass-throughs, obviously fake test
+  literals) while still flagging realistic hard-coded credentials.
+
 ## v0.3.1 — Phase 2B provider-backed structured source analysis
 
 Local candidate; backend analysis only, no frontend feature work.

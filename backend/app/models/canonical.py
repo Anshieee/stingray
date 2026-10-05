@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.models.common import ProvenanceStatus, SourceType
 
@@ -48,11 +48,15 @@ class PreparedSource(BaseModel):
 class EvidenceReference(BaseModel):
     """Minimal pointer to one prepared source segment."""
 
+    model_config = ConfigDict(extra="forbid")
+
     segment_id: str = Field(min_length=1, description="Must exist in PreparedSource.")
 
 
 class ProvenancedClaim(BaseModel):
     """Reusable provenance-aware claim without numeric confidence."""
+
+    model_config = ConfigDict(extra="forbid")
 
     text: str = Field(min_length=1)
     status: ProvenanceStatus

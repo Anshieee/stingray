@@ -25,6 +25,37 @@ PATTERNS = {
         r"(?im)^[ \t]*(?:[A-Z0-9_]*(?:API_KEY|SECRET|PASSWORD|TOKEN))[ \t]*=[ \t]*[^\s#]+"
     ),
 }
+# Narrow exemptions for credential-assignment matches that cannot embed a
+# literal secret. Anything with a non-exempt right-hand side is still flagged,
+# including realistic hard-coded values and non-obvious test fixtures.
+_ENV_LOOKUP = re.compile(r"^(?:os\.environ\b|os\.getenv\(|getenv\()")
+_BARE_REFERENCE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.]*,?$")
+_OBVIOUSLY_FAKE = re.compile(
+    r"^(?:test|fake|example|sample|dummy|placeholder|changeme)"
+    r"(?:[-_ ]?(?:key|token|secret|password|value))?$",
+    re.IGNORECASE,
+)
+
+
+def _credential_match_is_exempt(matched_line: str) -> bool:
+    """Return True only for provably non-secret right-hand sides."""
+    rhs = matched_line.split("=", 1)[1].strip().rstrip(",").strip()
+    if _ENV_LOOKUP.match(rhs):
+        return True
+    if _BARE_REFERENCE.fullmatch(rhs):
+        return True
+    if len(rhs) >= 2 and rhs[0] == rhs[-1] and rhs[0] in ("'", '"'):
+        return bool(_OBVIOUSLY_FAKE.fullmatch(rhs[1:-1]))
+    return False
+
+
+def credential_assignment_hit(text: str) -> bool:
+    """True when text holds a credential assignment worth human review."""
+    pattern = PATTERNS["credential-assignment"]
+    return any(
+        not _credential_match_is_exempt(match.group(0))
+        for match in pattern.finditer(text)
+    )
 
 
 def git(*args: str) -> bytes:
@@ -55,7 +86,10 @@ def main() -> None:
             failures.append(f"{path}: binary content needs explicit review")
         text = content.decode("utf-8", errors="replace")
         for label, pattern in PATTERNS.items():
-            if pattern.search(text):
+            if label == "credential-assignment":
+                if credential_assignment_hit(text):
+                    failures.append(f"{path}: {label}")
+            elif pattern.search(text):
                 failures.append(f"{path}: {label}")
         if name == ".env.example":
             for line in text.splitlines():

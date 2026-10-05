@@ -1,13 +1,15 @@
 # Progress
 
-- **Current iteration:** v0.3.1 — Phase 2B provider-backed structured source analysis.
+- **Current iteration:** v0.3.2 — Phase 2B strict nested provider schema repair.
 - **Current verified tag:** v0.3.0.
 - **Last human-verified fallback tag:** v0.3.0.
-- **Current candidate:** v0.3.1 (backend analysis only; no frontend feature work).
-- **Phase 2B status:** implemented and locally verified with injected fakes/mocks;
-  real-provider smoke pending human action.
-- **Local release status:** v0.3.1 created locally; awaiting human verification.
-- **Next planned phase:** Phase 3A — document ingestion foundation.
+- **Current candidate:** v0.3.2 (repair only; no new product functionality).
+- **v0.3.1 status:** local Phase-2B candidate rejected during human verification
+  because nested provider objects silently accepted extra fields.
+- **Phase 2B status:** repaired and locally verified; real-provider smoke pending
+  human action.
+- **Local release status:** v0.3.2 created locally; awaiting human verification.
+- **Next planned phase:** Phase 3A — document ingestion foundation (not started).
 
 ## Completed items
 
