@@ -1,15 +1,18 @@
 # Progress
 
-- **Current iteration:** v0.3.3 — Phase 2B FreeLLMAPI provider adaptation.
-- **Current verified tag:** v0.3.0.
-- **Last human-verified fallback tag:** v0.3.0.
-- **Current candidate:** v0.3.3 (provider adaptation only; no frontend feature work).
+- **Current iteration:** v0.3.4 — Phase 2B verified closeout (documentation only).
+- **Current verified tag:** v0.3.3.
+- **Last human-verified fallback tag:** v0.3.3.
+- **Current candidate:** v0.3.4 (documentation closeout; no application change).
+- **Current human-verified implementation:** v0.3.3.
 - **v0.3.1 status:** rejected local candidate (nested extras silently accepted).
-- **v0.3.2 status:** strict-schema repair passed local human checks, but real
-  provider smoke was not run.
-- **Phase 2B status:** FreeLLMAPI auto-router support added and locally verified
-  with fakes/mocks; real FreeLLMAPI smoke pending human action.
-- **Local release status:** v0.3.3 created locally; awaiting human verification.
+- **v0.3.2 status:** strict-schema repair passed local human checks.
+- **Phase 2B status:** complete and human-verified.
+- **Real FreeLLMAPI smoke:** PASSED (`freellmapi`, router requested `auto`,
+  provider-reported routed model observed `deepseek-ai/DeepSeek-V4-Flash-0731`;
+  the routed-model observation belongs to this smoke only, not a permanent
+  guarantee for future auto-router requests).
+- **Local release status:** v0.3.4 created locally; no remote publication.
 - **Next planned phase:** Phase 3A — document ingestion foundation (not started).
 
 ## Completed items
@@ -79,18 +82,29 @@ route, frontend change or new dependency was introduced. Structural validation
 proves cited segments exist with valid locations; it does not prove semantic
 entailment.
 
-## Phase 2B verification (v0.3.1 candidate)
+## Phase 2B verification (v0.3.3 human-verified)
 
-Backend `pytest` (99 passed: 51 pre-existing + 48 analysis) covers semantic-only
+Backend `pytest` (123 passed, plus strict-schema and FreeLLMAPI suites) covers semantic-only
 provider schema, server-owned identity combination, single provider call,
 OBSERVED-evidence failures without silent repair, Raven source-as-data handling,
-`/analyze` HTTP/error taxonomy via injected fakes, and OpenAI adapter behavior via
+`/analyze` HTTP/error taxonomy via injected fakes, and adapter behavior via
 mock SDK clients (parse path, text format, model passing, segment input, separate
 instructions, parsed-output use, reported-model honesty, refusal/timeout/auth/
 rate-limit mapping). No test performs network calls or spends tokens. OpenAI SDK
-3.24.0 (`openai>=3.24.0,<4`). Live E2E scrubs provider env vars from its child
-backend and proves `/analyze` returns 503 unconfigured. Real-provider smoke is a
-separate human action and was not run.
+3.24.0 (`openai>=3.24.0,<4`) is used as the OpenAI-compatible protocol client.
+Live E2E scrubs provider env vars from its child
+backend and proves `/analyze` returns 503 unconfigured.
+
+Human verification of v0.3.3 PASSED: 15 FreeLLMAPI focused tests, full backend
+suite, ruff, pip check, empty frontend diff, live deterministic verifier and
+clean hygiene were independently rerun. The human then ran one authorized real
+FreeLLMAPI auto-router smoke (`FREELLMAPI_MODEL=auto`,
+`FREELLMAPI_BASE_URL=http://localhost:3001/v1`): HTTP 200 with
+`provider: freellmapi`, `requested_model: auto` and provider-reported
+`deepseek-ai/DeepSeek-V4-Flash-0731`; server-owned SHA/segments and real segment
+evidence verified; date, 18-team statistic and risk-review request OBSERVED with
+evidence; risk interpretation INFERRED; unknowns UNKNOWN without fabrication;
+no confidence field and no invalid evidence. Phase 2B is complete.
 
 ## Current limitations
 

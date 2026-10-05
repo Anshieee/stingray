@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.4 — Phase 2B verified closeout
+
+Documentation only; no application behavior changed.
+No remote release or publication.
+
+- Recorded completed human verification of v0.3.3 and a passed real FreeLLMAPI
+  auto-router smoke (`provider: freellmapi`, router `auto`, routed model
+  observed as reported by the provider): server-owned source identity and
+  evidence-backed OBSERVED/INFERRED/UNKNOWN semantics behaved as intended.
+
 ## v0.3.3 — Phase 2B FreeLLMAPI provider adaptation
 
 Local candidate; backend provider adaptation only, no frontend change.
