@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
 from app.models.analysis import AnalysisMode, AnalyzeRequest, AnalyzeResponse
-from app.services.analysis import analyze_source
+from app.services.analysis import analyze_ingested
 from app.services.analysis_config import provider_from_environment
 from app.services.analysis_providers import (
     AnalysisProvider,
@@ -18,6 +18,7 @@ from app.services.analysis_providers import (
     ProviderRateLimitError,
     ProviderTimeoutError,
 )
+from app.services.ingestion import TextSourceIngestor
 
 router = APIRouter(tags=["analyze"])
 
@@ -115,7 +116,8 @@ def analyze(
 ) -> AnalyzeResponse | JSONResponse:
     """Analyze plain text once into validated canonical content."""
     try:
-        outcome = analyze_source(request.source.text, provider)
+        ingested = TextSourceIngestor().ingest_text(request.source.text)
+        outcome = analyze_ingested(ingested, provider)
     except tuple(error_type for error_type, _, _, _ in _ERROR_MAP) as error:
         response = analysis_error_response(error)
         if response is not None:

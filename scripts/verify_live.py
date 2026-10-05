@@ -60,6 +60,34 @@ def post_json(url: str, payload: dict) -> tuple[int, dict]:
     return response_status, json.loads(body)
 
 
+def post_file(url: str, path: Path, field: str = "file") -> tuple[int, dict]:
+    """Multipart-upload one file using only the standard library."""
+    import uuid
+
+    boundary = f"----stringray-{uuid.uuid4().hex}".encode("ascii")
+    data = path.read_bytes()
+    filename = path.name.encode("ascii")
+    head = (
+        b"--" + boundary + b"\r\n"
+        + b'Content-Disposition: form-data; name="' + field.encode("ascii") + b'"; filename="'
+        + filename + b'"\r\n'
+        + b"Content-Type: application/pdf\r\n\r\n"
+    )
+    tail = b"\r\n" + b"--" + boundary + b"--\r\n"
+    payload = head + data + tail
+    outgoing = Request(
+        url,
+        data=payload,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary.decode('ascii')}"},
+        method="POST",
+    )
+    try:
+        with HTTP.open(outgoing, timeout=10) as response:
+            return response.status, json.loads(response.read())
+    except HTTPError as error:
+        return error.code, json.loads(error.read())
+
+
 def wait_for_server(process: subprocess.Popen, url: str) -> None:
     deadline = time.monotonic() + 60
     while time.monotonic() < deadline:
@@ -186,6 +214,16 @@ def main() -> None:
         print(json.dumps(analyze, separators=(",", ":")))
         print("Verified unconfigured provider returns 503 without spending AI tokens.")
 
+        pdf_status, pdf_result = post_file(
+            "http://127.0.0.1:8000/api/v1/analyze/pdf", ROOT / "backend/tests/fixtures/atlas.pdf"
+        )
+        assert pdf_status == 503
+        assert pdf_result["status"] == "error"
+        assert pdf_result["error"]["code"] == "PROVIDER_NOT_CONFIGURED"
+        print(f"POST http://127.0.0.1:8000/api/v1/analyze/pdf -> HTTP {pdf_status}")
+        print(json.dumps(pdf_result, separators=(",", ":")))
+        print("Verified PDF ingested before the unconfigured 503, without AI tokens.")
+
         url = "http://127.0.0.1:8000/openapi.json"
         raw_schema = fetch(url)
         export = ARTIFACTS / "openapi.json"
@@ -193,7 +231,11 @@ def main() -> None:
         assert export.read_bytes() == raw_schema
         schema = json.loads(export.read_bytes())
         assert set(schema["paths"]) == {
-            "/health", "/api/v1/capabilities", "/api/v1/transform", "/api/v1/analyze"
+            "/health",
+            "/api/v1/capabilities",
+            "/api/v1/transform",
+            "/api/v1/analyze",
+            "/api/v1/analyze/pdf",
         }
         models = schema["components"]["schemas"]
         assert set(models["OutputType"]["enum"]) == OUTPUTS

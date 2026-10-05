@@ -15,6 +15,7 @@ contents in documentation. The application factory is `app.main:create_app`.
 | `GET /api/v1/capabilities` | Defined transformation identifiers, explicit implementation status, provenance vocabulary |
 | `POST /api/v1/transform` | Plain-text `executive_summary` deterministic integration stub |
 | `POST /api/v1/analyze` | Provider-backed structured source analysis (plain text; 503 when unconfigured) |
+| `POST /api/v1/analyze/pdf` | Same analysis for one PDF upload (`multipart/form-data`, field `file`; 4xx on ingestion failure) |
 | `GET /openapi.json` | Framework-generated schema |
 | `GET /docs`, `GET /redoc` | Framework interactive/reference documentation |
 
@@ -91,6 +92,15 @@ with fixed safe messages: invalid input → 422; unconfigured/auth/rate-limit �
 503; timeout → 504; connection/refusal/invalid/validation → 502. All seven
 transformation capabilities remain `implemented: false`; analysis does not mark
 any output implemented, and the frontend is not connected to it.
+
+## Analyze PDF upload contract
+
+`POST /api/v1/analyze/pdf` takes `multipart/form-data` with a single `file`
+field. Success reuses `AnalyzeResponse` with `source_type: pdf`. Ingestion
+failures reuse the error shape: `INVALID_PDF`/`PDF_NO_EXTRACTABLE_TEXT` → 400,
+`PDF_TOO_LARGE`/`EXTRACTED_TEXT_TOO_LARGE` → 413. The provider is never called
+on ingestion failure; valid ingestion with no configured provider returns the
+existing 503.
 
 ## Retrieve/export from a live server
 

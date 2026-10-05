@@ -10,13 +10,19 @@ from app.models.common import ProvenanceStatus, SourceType
 class SourceMetadata(BaseModel):
     """Deterministic identity for one prepared plain-text source."""
 
-    source_type: SourceType = Field(description="Only plain text is supported in Phase 2A.")
+    source_type: SourceType = Field(description="Input kind that produced this source.")
     sha256: str = Field(
         pattern=r"[0-9a-f]{64}",
         description="SHA-256 of UTF-8 normalized source text.",
     )
     character_count: int = Field(ge=0, description="len(normalized_text).")
     segment_count: int = Field(ge=0, description="Number of source segments.")
+    filename: str | None = Field(
+        default=None, description="Untrusted display name from upload, if any."
+    )
+    page_count: int | None = Field(
+        default=None, ge=1, description="Total document pages, if applicable."
+    )
 
 
 class SourceSegment(BaseModel):

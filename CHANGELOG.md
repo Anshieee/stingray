@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.4.0 — Phase 3A document ingestion foundation + PDF analysis
+
+Local candidate; ingestion only, no output generation, no frontend change.
+No remote release or publication.
+
+- Added `text`/`pdf` source types with `TextSourceIngestor`/`PdfSourceIngestor`
+  feeding the existing prepare → provider → validate pipeline; PDFs are parsed
+  in-memory with pypdf (page order, `"\n\n"` flattening) and report server-owned
+  `source_type: pdf` with filename/page-count metadata the provider cannot set.
+- Added `POST /api/v1/analyze/pdf` (single multipart upload, 10 MiB bound) with
+  honest ingestion errors; scanned PDFs and over-limit text are rejected without
+  truncation or OCR.
+
 ## v0.3.4 — Phase 2B verified closeout
 
 Documentation only; no application behavior changed.

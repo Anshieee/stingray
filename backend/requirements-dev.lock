@@ -48,7 +48,11 @@ pydantic-core==2.46.5
     # via pydantic
 pygments==2.21.0
     # via pytest
+pypdf==6.19.0
+    # via stringray-backend (pyproject.toml)
 pytest==9.1.1
+    # via stringray-backend (pyproject.toml)
+python-multipart==0.0.32
     # via stringray-backend (pyproject.toml)
 ruff==0.16.10
     # via stringray-backend (pyproject.toml)

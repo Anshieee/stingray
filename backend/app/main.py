@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import analyze, capabilities, health, transform
+from app.api.routes import analyze, analyze_pdf, capabilities, health, transform
 
 
 def create_app(analysis_provider=None) -> FastAPI:
@@ -25,7 +25,9 @@ def create_app(analysis_provider=None) -> FastAPI:
     application.include_router(capabilities.router, prefix="/api/v1")
     application.include_router(transform.router, prefix="/api/v1")
     application.include_router(analyze.router, prefix="/api/v1")
+    application.include_router(analyze_pdf.router, prefix="/api/v1")
     analyze.register_analysis_error_handlers(application)
+    analyze_pdf.register_pdf_error_handlers(application)
     return application
 
 

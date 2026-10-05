@@ -3,13 +3,13 @@
 Stringray is a planned AI-powered multimodal platform that understands a common
 information source once and transforms it into configurable communication artefacts.
 
-**v0.3.3 candidate — Phase 2B FreeLLMAPI provider adaptation.**
-`POST /api/v1/analyze` supports `AI_PROVIDER=openai` and
-`AI_PROVIDER=freellmapi` (OpenAI-compatible auto router, default
-`http://localhost:3001/v1`, router value such as `auto` passed through
-unchanged). Without configuration it
-returns a controlled 503; the browser-to-API Phase-1 slice is unchanged and the
-frontend is not connected to analysis yet; see
+**v0.4.0 candidate — Phase 3A document ingestion foundation.**
+`POST /api/v1/analyze` handles plain text and `POST /api/v1/analyze/pdf` accepts
+text-bearing PDF uploads through the same deterministic
+prepare → provider → validate pipeline (no OCR; scanned PDFs are rejected
+honestly). Without provider configuration both return a controlled 503; the
+browser Phase-1 slice is unchanged and the frontend is not connected to analysis
+yet; see
 [PROGRESS.md](PROGRESS.md).
 
 ## Architecture and layout
@@ -155,6 +155,8 @@ curl --fail --silent --show-error --request POST http://127.0.0.1:8000/api/v1/tr
 curl --fail --silent --show-error --request POST http://127.0.0.1:8000/api/v1/analyze \
   --header 'Content-Type: application/json' \
   --data '{"source":{"type":"text","text":"The organization announced Project Aurora on 4 October 2026."}}'
+curl --fail --silent --show-error --request POST http://127.0.0.1:8000/api/v1/analyze/pdf \
+  --form 'file=@backend/tests/fixtures/atlas.pdf;type=application/pdf'
 mkdir -p artifacts
 curl --fail --silent --show-error http://127.0.0.1:8000/openapi.json --output artifacts/openapi.json
 python3.12 -c 'import json; from pathlib import Path; print(sorted(json.loads(Path("artifacts/openapi.json").read_text())["paths"]))'
@@ -192,7 +194,12 @@ Its output begins with `[DETERMINISTIC STUB]`, and the API mode is `DETERMINISTI
 ## Phase 2B analysis contract and manual smoke (human only)
 
 `POST /api/v1/analyze` accepts only `{"source": {"type": "text", "text": "..."}}`
-(1..10,000 chars, non-whitespace, same policy as Phase 1). Success returns
+(1..10,000 chars, non-whitespace, same policy as Phase 1). `POST
+/api/v1/analyze/pdf` accepts one `multipart/form-data` PDF upload (field `file`,
+<=10 MiB, text-bearing only): pages are extracted in order with pypdf, flattened
+with `"\n\n"` separators and analyzed through the same pipeline, reporting
+`source_type: pdf`. Scanned/image-only PDFs return a controlled 400 (no OCR yet);
+oversized uploads or over-limit extracted text return 413 without truncation. Success returns
 `status: ok`, `mode: AI_STRUCTURED_ANALYSIS`, truthful `provider` /
 `requested_model` / `provider_reported_model` (null when unreported), validated
 `canonical_content` and empty `warnings`. Failures are typed

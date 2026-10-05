@@ -13,6 +13,7 @@ class OutputType(StrEnum):
 
 class SourceType(StrEnum):
     TEXT = "text"
+    PDF = "pdf"
 
 
 class TransformationMode(StrEnum):

@@ -1,19 +1,17 @@
 # Progress
 
-- **Current iteration:** v0.3.4 — Phase 2B verified closeout (documentation only).
+- **Current iteration:** v0.4.0 — Phase 3A document ingestion foundation + PDF analysis.
 - **Current verified tag:** v0.3.3.
-- **Last human-verified fallback tag:** v0.3.3.
-- **Current candidate:** v0.3.4 (documentation closeout; no application change).
-- **Current human-verified implementation:** v0.3.3.
+- **Last human-verified fallback tag:** v0.3.4.
+- **Current candidate:** v0.4.0 (ingestion only; no output generation, no frontend change).
+- **Current human-verified implementation:** v0.3.3 (Phase 2B, real FreeLLMAPI smoke passed).
 - **v0.3.1 status:** rejected local candidate (nested extras silently accepted).
-- **v0.3.2 status:** strict-schema repair passed local human checks.
-- **Phase 2B status:** complete and human-verified.
-- **Real FreeLLMAPI smoke:** PASSED (`freellmapi`, router requested `auto`,
-  provider-reported routed model observed `deepseek-ai/DeepSeek-V4-Flash-0731`;
-  the routed-model observation belongs to this smoke only, not a permanent
-  guarantee for future auto-router requests).
-- **Local release status:** v0.3.4 created locally; no remote publication.
-- **Next planned phase:** Phase 3A — document ingestion foundation (not started).
+- **v0.3.3 smoke history:** real FreeLLMAPI auto-router smoke passed
+  (`freellmapi`, router `auto`); routed-model observation was request-specific.
+- **Phase 3A status:** implemented and locally verified with injected fakes;
+  real PDF + real provider analysis not yet run.
+- **Local release status:** v0.4.0 created locally; awaiting human verification.
+- **Next planned phase:** Phase 4 — real artifact generation (not started).
 
 ## Completed items
 

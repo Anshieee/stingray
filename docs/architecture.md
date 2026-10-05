@@ -24,6 +24,22 @@ deterministic stub advertises `stub_available: true` and `stub_mode: DETERMINIST
 There is no storage or model call in the walking skeleton. A deterministic
 canonical layer exists internally; provider-backed analysis is described below.
 
+## Implemented Phase 3A ingestion layer
+
+```text
+Text: submitted text -> TextSourceIngestor -> IngestedSource
+PDF:  uploaded bytes -> PdfSourceIngestor (pypdf, in-memory)
+          -> IngestedSource -> prepare_source(source_type=pdf)
+Both -> existing provider analysis -> validated CanonicalContent
+```
+
+`POST /api/v1/analyze/pdf` accepts one multipart PDF upload (field `file`,
+<=10 MiB). Pages extract in document order; each page normalizes line endings,
+trims edge whitespace, drops empty pages (total page count retained), and joins
+with exactly `"\n\n"`. Filenames are untrusted display text, never paths;
+embedded PDF metadata is ignored. Empty/malformed input, text-free PDFs and
+over-limit uploads/text fail with typed 4xx codes before any provider call.
+
 ## Implemented Phase 2B provider-backed analysis layer
 
 ```text

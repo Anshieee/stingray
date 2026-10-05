@@ -1,0 +1,3 @@
+# Treat committed test PDF fixtures as binary (xref entries end with a
+# spec-required space; whitespace checks must not apply to them).
+backend/tests/fixtures/*.pdf binary

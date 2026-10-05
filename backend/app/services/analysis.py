@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from app.models.analysis import CanonicalSemanticAnalysis
 from app.models.canonical import CanonicalContent, PreparedSource
+from app.models.common import SourceType
 from app.services.analysis_providers import (
     AnalysisProvider,
     CanonicalAnalysisValidationError,
@@ -15,6 +16,7 @@ from app.services.canonical_validation import (
     CanonicalValidationError,
     validate_canonical_against_source,
 )
+from app.services.ingestion import IngestedSource
 from app.services.source_preparation import prepare_source
 
 
@@ -48,9 +50,25 @@ def _combine(prepared: PreparedSource, semantic: CanonicalSemanticAnalysis) -> C
     )
 
 
-def analyze_source(raw_text: str, provider: AnalysisProvider) -> AnalysisOutcome:
+def analyze_source(
+    raw_text: str,
+    provider: AnalysisProvider,
+    source_type: SourceType = SourceType.TEXT,
+) -> AnalysisOutcome:
     """Prepare source, call provider once, validate; never silently repair."""
-    prepared = prepare_source(raw_text)
+    prepared = prepare_source(raw_text, source_type=source_type)
+    return _analyze_prepared(prepared, provider)
+
+
+def analyze_ingested(ingested: IngestedSource, provider: AnalysisProvider) -> AnalysisOutcome:
+    """Analyze an ingested source, preserving server-owned ingestion metadata."""
+    prepared = prepare_source(ingested.text, source_type=ingested.source_type)
+    prepared.metadata.filename = ingested.filename
+    prepared.metadata.page_count = ingested.page_count
+    return _analyze_prepared(prepared, provider)
+
+
+def _analyze_prepared(prepared: PreparedSource, provider: AnalysisProvider) -> AnalysisOutcome:
     result: ProviderAnalysisResult = provider.analyze(prepared)
     canonical = _combine(prepared, result.semantic_analysis)
     try:

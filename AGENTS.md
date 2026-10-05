@@ -5,10 +5,10 @@
 Stringray will transform a common multimodal information source into one or more
 communication artefacts controlled by audience, tone, language, detail, objective
 and style. It must analyze each source once, preserving evidence and provenance
-across every output. The current iteration is **v0.3.3 candidate, Phase 2B /
-FreeLLMAPI provider adaptation**: `POST /api/v1/analyze` supports `openai` and
-`freellmapi` provider identities over one shared OpenAI-compatible structured
-adapter (transport SDK != provider identity). Read PROGRESS.md before
+across every output. The current iteration is **v0.4.0 candidate, Phase 3A /
+document ingestion foundation**: text and text-bearing PDF uploads feed the same
+deterministic prepare → provider → validate pipeline (no OCR, no generation).
+Read PROGRESS.md before
 starting work and obtain an explicit phase scope before adding product functionality.
 
 ## Repository map
@@ -16,9 +16,10 @@ starting work and obtain an explicit phase scope before adding product functiona
 - `frontend/`: Next.js App Router, React, strict TypeScript, Tailwind, npm, Vitest and local API transport.
 - `backend/app/`: FastAPI factory, API routes, Pydantic contracts, deterministic service,
   internal canonical domain (`models/canonical.py`), deterministic
-  preparation/validation services, plus Phase-2B provider-backed analysis
+  preparation/validation services, Phase-2B provider-backed analysis
   (`models/analysis.py`, `services/analysis*.py`, `openai_provider.py`,
-  `api/routes/analyze.py`) with injected fakes in tests.
+  `api/routes/analyze.py`), plus Phase-3A ingestion (`services/ingestion.py`,
+  `api/routes/analyze_pdf.py`) with in-memory PDF extraction.
 - `backend/tests/`: HTTP behaviour tests, canonical tests
   (`test_source_preparation.py`, `test_canonical_models.py`, `test_strict_schema.py`)
   and analysis tests (`test_analysis_service.py`, `test_analyze_api.py`,
@@ -107,6 +108,11 @@ virtual environments may contain absolute paths.
    child backend. Provider-controlled
    models (`ProvenancedClaim`, `EvidenceReference`) are strictly closed
    (`extra="forbid"`): unknown fields such as `confidence` are rejected, never ignored.
+9. Phase 3A ingestion stays in-memory and deterministic: `TextSourceIngestor` /
+   `PdfSourceIngestor` produce `IngestedSource` for the existing pipeline;
+   uploaded filenames are untrusted display text, never paths; text-bearing PDFs
+   only (pypdf page order, `"\n\n"` flattening); no OCR; 10 MiB upload bound and
+   existing 10,000-character analysis policy enforced without truncation.
 
 ## Provenance and honesty
 

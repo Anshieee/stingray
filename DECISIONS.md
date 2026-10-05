@@ -158,3 +158,16 @@
 - **Alternatives:** a duplicated FreeLLMAPI adapter; downgrading to ad-hoc JSON parsing.
 - **Consequences:** one structured-parse implementation; `freellmapi` results carry
   honest router metadata; no new dependency; X-Routed-Via capture deferred.
+
+## ADR-015 — Deterministic in-memory PDF extraction, OCR deferred
+
+- **Status:** accepted for Phase 3A.
+- **Context:** PDF sources must enter the same canonical pipeline without a
+  document-processing framework or new validation semantics.
+- **Choice:** pypdf page-order extraction from memory (`BytesIO`, no temp files,
+  filenames never paths), `"\n\n"` flattening, existing `prepare_source()` and
+  provider/validation pipeline reused; text-free PDFs rejected with a typed
+  error stating OCR is not implemented.
+- **Alternatives:** OCR/Tesseract/PyMuPDF; separate PDF analysis pipeline.
+- **Consequences:** tiny deterministic footprint (pypdf + python-multipart only);
+  long-document chunking and scanned-PDF support stay explicitly out of scope.
